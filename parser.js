@@ -34,7 +34,7 @@ function pgnToJson(text) {
         }
     }
 
-    let cleanGames = removeUnimportantData(games);
+    let cleanGames = cleanData(games);
     console.log(cleanGames);
 }
 
