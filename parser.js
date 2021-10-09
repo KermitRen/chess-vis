@@ -112,4 +112,5 @@ function examineData(games) {
     console.log(openingGroups);
 
     //console.log("There are " + noOfOpenings + " different openings");
+    // Hello - Christoffer
 }
