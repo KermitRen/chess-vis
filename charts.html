@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Visualization</title>
+    <link rel="stylesheet" href="css/charts.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="charts.js"></script>
+    <script src ="d3Charts.js"></script>
+</head>
+
+<body>
+    <div id="leftSide">
+        <p>Chess Visualization</p>
+        <div id="beeswarm1Container" class="beeswarmContainer">
+
+        </div>
+        <div id="beeswarm2Container" class="beeswarmContainer">
+
+        </div>
+    </div>
+    <div id="rightSide">
+        <div id = "filters">
+            <div id="eloSlider">
+
+            </div>
+            <div id="timeControl">
+                <input id ="bulletCheckbox" type="checkbox" checked>
+                <input id ="blitzCheckbox" type="checkbox" checked>
+                <input id ="rapidCheckbox" type="checkbox" checked>
+                <input id ="classicalCheckbox" type="checkbox" checked>
+            </div>
+        </div>
+        <div id = "openingContainer">
+
+        </div>
+    </div>
+</body>
+</html>

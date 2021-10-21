@@ -87,7 +87,6 @@ function newBeeswarmChart(data, {
   
   for (var i = 0; i<wW.length; i++)
     X[i] = Math.max(wW[i], wB[i])
-  console.log("WTF BOOM")
 
   // Compute which data points are considered defined.
   const I = d3.range(X.length).filter(i => !isNaN(X[i]));

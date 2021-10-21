@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+  color: white;
+  font-size: 16px;
+  font-family: Poppins, sans-serif;
+}
+
+p {
+  color: black;
+  font-family: Poppins, sans-serif;
+  cursor: default;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: white;
+  height: 100%;
+  position: relative;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+}
+
+#leftSide {
+  width: 70%;
+}
+
+#leftSide p {
+  height: 10vh;
+  text-align: center;
+  font-size: 3vmax;
+}
+
+#leftSide .beeswarmContainer {
+  background-color: #c7a487;
+  height: 45vh;
+  border-top: 1px solid black;
+}
+
+#rightSide {
+  width: 30%;
+}
+
+#rightSide #filters {
+  height: 30vh;
+  border: 1px solid orange;
+}
+
+#rightSide #filters #eloSlider {
+  border: 1px solid red;
+  height: 60%;
+}
+
+#rightSide #filters #timeControl {
+  height: 40%;
+  border: 1px solid black;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+#rightSide #openingContainer {
+  height: 70vh;
+  border: 1px solid purple;
+}
+
+div.tooltip {
+  color: black;
+  position: absolute;
+  text-align: left;
+  font-family: Poppins, sans-serif;
+  white-space: normal;
+  padding: 6px;
+  font-size: 14px;
+  background: #eee;
+  border: 1px solid gray;
+  border-radius: 2px;
+  pointer-events: none;
+  cursor: none;
+}
+
+div.tooltip strong {
+  color: black;
+}
+/*# sourceMappingURL=charts.css.map */

@@ -1,0 +1,71 @@
+@import "colors";
+@import "fonts";
+@import "reset";
+
+body {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+#leftSide {
+    width: 70%;
+
+    p {
+        height: 10vh;
+        text-align: center;
+        font-size: 3vmax;
+    }
+
+    .beeswarmContainer {
+        background-color: #c7a487;
+        height: 45vh;
+        border-top: 1px solid black;
+    }
+}
+
+#rightSide {
+    width: 30%;
+
+    #filters {
+        height: 30vh;
+        border: 1px solid orange;
+
+        #eloSlider {
+            border: 1px solid red;
+            height: 60%;
+        }
+
+        #timeControl {
+            height: 40%;
+            border: 1px solid black;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+    }
+
+    #openingContainer {
+        height: 70vh;
+        border: 1px solid purple;
+    }
+}
+
+div.tooltip {	
+    color: black;
+    position: absolute;			
+    text-align: left;
+    font-family: $poppins;		
+    white-space: normal;					
+    padding: 6px;				
+    font-size: 14px;		
+    background: #eee;	
+    border: 1px solid gray;	
+    border-radius: 2px;			
+    pointer-events: none;
+    cursor: none;
+
+    strong {
+        color: black;
+    }
+}
