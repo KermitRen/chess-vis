@@ -14,11 +14,20 @@ function setupPage() {
 }
 
 function drawCharts() {
+
+    //Collect data
     let filteredData = applyFilters(lichessData);
     let aggregatedData = aggregateData(filteredData);
     let cleanAggregatedData = removeInsignificantOpenings(aggregatedData);
     console.log(cleanAggregatedData.length)
 
+    //Remove old chart
+    chartContainer = document.getElementById("beeswarm1Container");
+    while (chartContainer.firstChild != null) {
+        chartContainer.removeChild(chartContainer.lastChild);
+    }
+
+    //Draw chart
     newBeeswarmChart(cleanAggregatedData, { 
         winrate: d => Math.abs(100*((d.whiteWins - d.blackWins)/(d.blackWins+d.whiteWins+d.draws))), 
         opening: d => d.name,

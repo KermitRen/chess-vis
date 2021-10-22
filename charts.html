@@ -13,7 +13,7 @@
 
 <body>
     <div id="leftSide">
-        <p>Chess Visualization</p>
+        <div id = "titleContainer"> <p>Chess Visualization</p> </div>
         <div id="beeswarm1Container" class="beeswarmContainer">
 
         </div>
@@ -27,10 +27,22 @@
 
             </div>
             <div id="timeControl">
-                <input id ="bulletCheckbox" type="checkbox" checked>
-                <input id ="blitzCheckbox" type="checkbox" checked>
-                <input id ="rapidCheckbox" type="checkbox" checked>
-                <input id ="classicalCheckbox" type="checkbox" checked>
+                <div class="checkboxContainer">
+                    <p>Bullet</p>
+                    <input id ="bulletCheckbox" type="checkbox" checked onclick="drawCharts()">
+                </div>
+                <div class="checkboxContainer">
+                    <p>Blitz</p>
+                    <input id ="blitzCheckbox" type="checkbox" checked onclick="drawCharts()">
+                </div>
+                <div class="checkboxContainer">
+                    <p>Rapid</p>
+                    <input id ="rapidCheckbox" type="checkbox" checked onclick="drawCharts()">
+                </div>
+                <div class="checkboxContainer">
+                    <p>Classical</p>
+                    <input id ="classicalCheckbox" type="checkbox" checked onclick="drawCharts()">
+                </div>
             </div>
         </div>
         <div id = "openingContainer">

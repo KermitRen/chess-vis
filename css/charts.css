@@ -43,10 +43,18 @@ body {
   width: 70%;
 }
 
-#leftSide p {
+#leftSide #titleContainer {
   height: 10vh;
+  background-color: #8f745e;
+}
+
+#leftSide #titleContainer p {
   text-align: center;
+  position: relative;
   font-size: 3vmax;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
 }
 
 #leftSide .beeswarmContainer {
@@ -61,11 +69,11 @@ body {
 
 #rightSide #filters {
   height: 30vh;
-  border: 1px solid orange;
+  background-color: #735e4d;
 }
 
 #rightSide #filters #eloSlider {
-  border: 1px solid red;
+  border: 1px solid black;
   height: 60%;
 }
 
@@ -84,6 +92,44 @@ body {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+}
+
+#rightSide #filters #timeControl .checkboxContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: column nowrap;
+          flex-flow: column nowrap;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+#rightSide #filters #timeControl .checkboxContainer p {
+  font-size: 1.2vmax;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+#rightSide #filters #timeControl .checkboxContainer input[type=checkbox] {
+  height: 20px;
+  width: 20px;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  border: 3px solid white;
+  background-color: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#rightSide #filters #timeControl .checkboxContainer input[type=checkbox]:checked {
+  background-color: #b09076;
 }
 
 #rightSide #openingContainer {

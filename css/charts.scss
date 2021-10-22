@@ -10,14 +10,22 @@ body {
 #leftSide {
     width: 70%;
 
-    p {
+    #titleContainer {
         height: 10vh;
-        text-align: center;
-        font-size: 3vmax;
+        background-color: $chessBrown3;
+
+        p {
+            text-align: center;
+            position: relative;
+            font-size: 3vmax;
+            top: 50%;
+            transform: translateY(-50%);
+        }
     }
 
+
     .beeswarmContainer {
-        background-color: #c7a487;
+        background-color: $chessBrown1;
         height: 45vh;
         border-top: 1px solid black;
     }
@@ -28,10 +36,10 @@ body {
 
     #filters {
         height: 30vh;
-        border: 1px solid orange;
+        background-color: $chessBrown4;
 
         #eloSlider {
-            border: 1px solid red;
+            border: 1px solid black;
             height: 60%;
         }
 
@@ -42,6 +50,33 @@ body {
             flex-flow: row nowrap;
             justify-content: space-around;
             align-items: center;
+
+            .checkboxContainer {
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-between;
+                align-items: center;
+
+                p {
+                    font-size: 1.2vmax;
+                    font-weight: 500;
+                    margin-bottom: 10px;
+                }
+
+                input[type=checkbox] {
+                    height: 20px;
+                    width: 20px;
+                    appearance: none;
+                    border: 3px solid white;
+                    background-color: white;
+                    border-radius: 50%;
+                    cursor: pointer;
+                
+                    &:checked {
+                        background-color: $chessBrown2;
+                    }
+                }
+            }
         }
     }
 
