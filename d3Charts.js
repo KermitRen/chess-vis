@@ -2,12 +2,13 @@ function newBeeswarmChart(data, {
     
     winrate = d => d,
     opening = d => d, 
-    whiteperc = d => d,
-    blackperc = d => d,
-    drawperc = d => d,
+    // whiteperc = d => d,
+    // blackperc = d => d,
+    // drawperc = d => d,
     wincolor = d => d,
+    noOfGames = d => d, 
   
-    radius = 6, // (fixed) radius of the circles
+    radius = document.getElementById('beeswarm1Container').clientHeight / 50, //radius of the circles, needs to depend on width also
     padding = 1, // (fixed) padding between the circles
     marginTop = 10, // top margin, in pixels
     marginRight = 20, // right margin, in pixels
@@ -22,12 +23,19 @@ function newBeeswarmChart(data, {
     ) {
 
     // Compute values.
+    const totalGamesArray = d3.map(data, noOfGames);
+    const totalGames = totalGamesArray.reduce(summing,0);
     const X = d3.map(data, winrate);
     const T = opening == null ? null : d3.map(data, opening);
-    const winWhite = d3.map(data, whiteperc);
-    const winBlack = d3.map(data, blackperc);
-    const Draw = d3.map(data, drawperc);
+    // const winWhite = d3.map(data, whiteperc);
+    // const winBlack = d3.map(data, blackperc);
+    // const winDraw = d3.map(data, drawperc);
     const winColor = d3.map(data, wincolor)
+
+    //Reduce-function that sums all games
+    function summing(previousValue, currentValue) { 
+      return previousValue + currentValue;
+    }
 
     // Compute which data points are considered defined.
     const I = d3.range(X.length).filter(i => !isNaN(X[i]));
@@ -98,13 +106,12 @@ function newBeeswarmChart(data, {
         .attr("height", height)
         // .attr("viewBox", [0, 0, width, height])
         // .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-        console.log("Got here")
   
     // Tooltip
     var tt = d3.select("#beeswarm1Container")
         .append("div")	
         .attr("class", "tooltip")				
-        .style("opacity", 100);
+        .style("opacity", 0);
   
     // Leader-line
     var xline = svgWinrate.append("line")
@@ -133,11 +140,20 @@ function newBeeswarmChart(data, {
         .attr("r", radius)
         .attr("fill", d => winColor[d])
     
+    svgWinrate.append("g")
+      .attr("transform", `translate(0,${marginTop})`)
+      .call(g => g.append("text")
+      .attr("x", width-marginRight)
+      .attr("y", marginTop)
+      .attr("fill", "black")
+      .attr("text-anchor", "end")
+      .text("Visualized on " + totalGames.toLocaleString('en-US') + " games"));
+
     // Mouse hover
     dot.on("mousemove", function(event, d) {
           tt.html("<strong>" + T[d]+ "</strong><br>" 
-                    + winColor[d] + "<br>"
-                    + "Winrate: " + X[d] + " %")
+                    + X[d].toFixed(2) + " %<br>"
+                    + "Total games: " + totalGamesArray[d])
               .style("top", (event.pageY - 12) + "px")
               .style("left", (event.pageX + 25) + "px")
               .style("opacity", 0.9);
