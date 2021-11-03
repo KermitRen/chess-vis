@@ -28,6 +28,16 @@ function drawCharts() {
         chartContainer.removeChild(chartContainer.lastChild);
     }
 
+    //Følgende blok kan slettes når ikke relevant
+    minElo = Infinity;
+    maxElo = 0;
+    for(let i = 0; i < cleanAggregatedData.length; i++) {
+        minElo = Math.min(minElo, cleanAggregatedData[i].minRating);
+        maxElo = Math.max(maxElo, cleanAggregatedData[i].maxRating);
+    }
+    console.log("minElo: " + minElo);
+    console.log("maxElo: " + maxElo);
+
     //Draw chart
     newBeeswarmChart(cleanAggregatedData, { 
         winrate: d => Math.abs(100*((d.whiteWins - d.blackWins)/(d.blackWins+d.whiteWins+d.draws))), 
@@ -99,15 +109,37 @@ function aggregateData(data) {
             opening.blackWins += game.Result == 1?1:0;
             opening.draws += game.Result == 2?1:0;
             opening.gameLengthSum += game.noOfMoves;
+            opening.maxRating = Math.max(opening.maxRating, game.Rating);
+            opening.minRating = Math.min(opening.minRating, game.Rating);
+            if (game.Variation) {
+                let existingVariation = opening.variations.find(x => x.Variation == game.Variation);
+                if (existingVariation) {
+                    existingVariation.VarSum += 1;
+                } else {
+                    opening.variations.push({Variation: game.Variation, VarSum: 1});
+                }
+            } else {
+                opening.variations.find(x => x.Variation == "No variation").VarSum +=1;
+            }
         } else {
             let whiteWin = game.Result == 0?1:0;
             let blackWin = game.Result == 1?1:0;
             let draw = game.Result == 2?1:0;
+            let variationExists = game.Variation == null?false:true;
+            let variationsArray = [];
+            if (variationExists) {
+                variationsArray.push({Variation: "No variation", VarSum: 0})
+                variationsArray.push({Variation: game.Variation, VarSum: 1});
+            } else { variationsArray.push({Variation: "No variation", VarSum: 1})}
+            let gameRating = game.Rating;
             let newOpening = {name: game.Opening,
                              whiteWins: whiteWin, 
                              blackWins: blackWin, 
                              draws: draw,
-                             gameLengthSum: game.noOfMoves}; 
+                             gameLengthSum: game.noOfMoves,
+                             variations: variationsArray,
+                             minRating: gameRating,
+                             maxRating: gameRating};
             openings.push(newOpening);
         }
     }
