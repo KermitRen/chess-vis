@@ -20,6 +20,7 @@ function drawCharts() {
     let aggregatedData = aggregateData(filteredData);
     let cleanAggregatedData = removeInsignificantOpenings(aggregatedData);
     console.log(cleanAggregatedData.length)
+    console.log(cleanAggregatedData)
 
     //Remove old chart
     chartContainer = document.getElementById("beeswarm1Container");
@@ -39,6 +40,23 @@ function drawCharts() {
         xLabel: "% Winrate", //find better wording, "more/increased/greater % winrate" or similar
         width: document.getElementById("beeswarm1Container").getBoundingClientRect().width,
         height: document.getElementById("beeswarm1Container").getBoundingClientRect().height
+    });
+
+    chartContainer = document.getElementById("beeswarm2Container");
+    while (chartContainer.firstChild != null) {
+        chartContainer.removeChild(chartContainer.lastChild);
+    }
+    gameLengthBeeswarmChart(cleanAggregatedData, { 
+        gameLength: d => d.avgGameLength, 
+        opening: d => d.name,
+        // whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
+        // blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
+        // drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
+        wincolor: d => (d.whiteWins/(d.whiteWins + d.blackWins + d.draws)>(d.blackWins/(d.whiteWins + d.blackWins + d.draws)))?"White":"Black",
+        noOfGames: d => d.whiteWins + d.blackWins + d.draws,
+        xLabel: "Game length", //find better wording, "more/increased/greater % winrate" or similar
+        width: document.getElementById("beeswarm2Container").getBoundingClientRect().width,
+        height: document.getElementById("beeswarm2Container").getBoundingClientRect().height
     });
 }
 
@@ -95,9 +113,8 @@ function aggregateData(data) {
     }
 
     for (let i = 0; i < openings.length; i++) {
-        openings[i]["avgGameLength"] = openings[i].gameLengthSum/(openings.whiteWins + openings.blackWins + openings.draws);
+        openings[i]["avgGameLength"] = openings[i].gameLengthSum/(openings[i].whiteWins + openings[i].blackWins + openings[i].draws);
         delete openings[i].gameLengthSum;
     }
-    
     return openings
 }
