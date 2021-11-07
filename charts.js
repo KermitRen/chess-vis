@@ -22,21 +22,16 @@ function drawCharts() {
     console.log(cleanAggregatedData.length)
     console.log(cleanAggregatedData)
 
-    //Remove old chart
-    chartContainer = document.getElementById("beeswarm1Container");
-    while (chartContainer.firstChild != null) {
-        chartContainer.removeChild(chartContainer.lastChild);
+    //Remove all charts
+    for (let i=0; i<3;i++) {
+        chartContainer = document.getElementById("beeswarm"+(i+1)+"Container");
+        while (chartContainer.firstChild != null) {
+            chartContainer.removeChild(chartContainer.lastChild);
+        }
     }
 
-    //Følgende blok kan slettes når ikke relevant
-    minElo = Infinity;
-    maxElo = 0;
-    for(let i = 0; i < cleanAggregatedData.length; i++) {
-        minElo = Math.min(minElo, cleanAggregatedData[i].minRating);
-        maxElo = Math.max(maxElo, cleanAggregatedData[i].maxRating);
-    }
-    console.log("minElo: " + minElo);
-    console.log("maxElo: " + maxElo);
+    // minElo = 600;
+    // maxElo = 3000;
 
     //Draw chart
     newBeeswarmChart(cleanAggregatedData, { 
@@ -52,10 +47,6 @@ function drawCharts() {
         height: document.getElementById("beeswarm1Container").getBoundingClientRect().height
     });
 
-    chartContainer = document.getElementById("beeswarm2Container");
-    while (chartContainer.firstChild != null) {
-        chartContainer.removeChild(chartContainer.lastChild);
-    }
     gameLengthBeeswarmChart(cleanAggregatedData, { 
         gameLength: d => d.avgGameLength, 
         opening: d => d.name,
@@ -67,6 +58,16 @@ function drawCharts() {
         xLabel: "Game length", //find better wording, "more/increased/greater % winrate" or similar
         width: document.getElementById("beeswarm2Container").getBoundingClientRect().width,
         height: document.getElementById("beeswarm2Container").getBoundingClientRect().height
+    });
+
+    popularityBeeswarmChart(cleanAggregatedData, { 
+        gameLength: d => d.avgGameLength, 
+        opening: d => d.name,
+        wincolor: d => (d.whiteWins/(d.whiteWins + d.blackWins + d.draws)>(d.blackWins/(d.whiteWins + d.blackWins + d.draws)))?"White":"Black",
+        noOfGames: d => d.whiteWins + d.blackWins + d.draws,
+        xLabel: "Game popularity on a log scale in %", //find better wording, "more/increased/greater % winrate" or similar
+        width: document.getElementById("beeswarm3Container").getBoundingClientRect().width,
+        height: document.getElementById("beeswarm3Container").getBoundingClientRect().height
     });
 }
 
