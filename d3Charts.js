@@ -1,3 +1,100 @@
+function variationsStackedBarChart(data, { //data = en specific opening..?
+
+    color_scheme_provider = d3.interpolateSpectral,
+    margin = {top: 20, right: 20, bottom: 10, left: 50},
+    width = document.getElementById("stackedBarChart").getBoundingClientRect().width,
+    height = (data.length * 25) + margin.top + margin.bottom,
+    //height = data.length * 150 + margin.top + margin.bottom
+    //margin = ({top: 30, right: 30, bottom: 0, left: 190})
+    opening = data.name,
+    variations = d => d,
+    whiteperc = d => d,
+    blackperc = d => d,
+    drawperc = d => d,
+
+  } = {}
+  ) {
+    console.log("Opening: "+ opening);
+    const variationArray = data.variations;
+    console.log(variationArray)
+    const varName = d3.map(variationArray, variations);
+    console.log(varName)
+    const winWhite = d3.map(variationArray, whiteperc);
+    const winBlack = d3.map(variationArray, blackperc);
+    const winDraw = d3.map(variationArray, drawperc);
+    console.log(winWhite)
+    console.log(winBlack)
+    console.log(winDraw)
+    for(let i=0;i<variationArray.length;i++) {
+      
+    }
+
+    //values
+    series = d3.stack()
+        (winWhite)
+    console.log(series)
+    //x-axis
+    x = d3.scaleLinear()
+    .domain([0, 100])
+    .range([margin.left, width - margin.right])
+    
+    //y-axis
+    y = d3.scaleBand()
+    .domain(variationArray.map(d => d.Variation))
+    .range([margin.top, height - margin.bottom])
+    .padding(0.1)
+    
+    //Colors
+    color = d3.scaleOrdinal()
+      .domain(series.map(d => d.key))
+      .range(["#0571b0", "#ca0020"])
+    
+    //draw x-axis?
+    xAxis = g => g
+    .attr("transform", `translate(0,${margin.top})`)
+    .call(d3.axisTop(x).ticks(width / 100, "s"))
+    .call(g => g.selectAll(".domain").remove())
+    
+    //draw y-axis
+    yAxis = g => g
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).tickSizeOuter(0))
+    .call(g => g.selectAll(".domain").remove())
+
+
+    //Chart
+    const svg = d3.create("svg")
+        .attr("viewBox", [0, 0, width, height]);
+  
+    svg.append("g")
+      .selectAll("g")
+      .data(series)
+      .join("g")
+        .attr("fill", d => color(d.key))
+        .attr("stroke", "white")
+      .selectAll("rect")
+      .data(d => d)
+      .join("rect")
+        .attr("x", d => x(d[0]))
+        .attr("y", (d, i) => y(d.data.title))
+        .attr("width", d => x(d[1]) - x(d[0]))
+        .attr("height", y.bandwidth())
+      .append("title")
+        .text(d => `${d.data.title} ${d.key}
+          ${formatValue(d.data[d.key])}`);
+    
+      svg.append("g")
+          .style("font", "25px Roboto")
+          .call(xAxis);
+    
+      svg.append("g")
+          .style("font", "25px Roboto")
+          .call(yAxis);
+
+
+    return null//svgWinrate.node();
+  }
+
 function newBeeswarmChart(data, {
     
     winrate = d => d,
@@ -369,7 +466,6 @@ function newBeeswarmChart(data, {
     const totalGames = totalGamesArray.reduce(summing,0);
     const popularity = totalGamesArray.map(x => 100*x/totalGames);
     const X = popularity;
-    console.log(popularity)
     const T = opening == null ? null : d3.map(data, opening);
     // const winWhite = d3.map(data, whiteperc);
     // const winBlack = d3.map(data, blackperc);

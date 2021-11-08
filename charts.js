@@ -106,9 +106,12 @@ function aggregateData(data) {
         let game = data[i];
         let opening = openings.find(x => x.name == game.Opening)
         if (opening) {
-            opening.whiteWins += game.Result == 0?1:0;
-            opening.blackWins += game.Result == 1?1:0;
-            opening.draws += game.Result == 2?1:0;
+            whiteWin = game.Result == 0?1:0;
+            blackWin = game.Result == 1?1:0;
+            drawWin = game.Result == 2?1:0;
+            opening.whiteWins += whiteWin;
+            opening.blackWins += blackWin;
+            opening.draws += drawWin;
             opening.gameLengthSum += game.noOfMoves;
             opening.maxRating = Math.max(opening.maxRating, game.Rating);
             opening.minRating = Math.min(opening.minRating, game.Rating);
@@ -116,11 +119,17 @@ function aggregateData(data) {
                 let existingVariation = opening.variations.find(x => x.Variation == game.Variation);
                 if (existingVariation) {
                     existingVariation.VarSum += 1;
+                    existingVariation.TotalWhiteWins += whiteWin;
+                    existingVariation.TotalDraws += drawWin;
+                    existingVariation.TotalBlackWins += blackWin;
                 } else {
-                    opening.variations.push({Variation: game.Variation, VarSum: 1});
+                    opening.variations.push({Variation: game.Variation, VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: drawWin, TotalBlackWins: blackWin});
                 }
             } else {
                 opening.variations.find(x => x.Variation == "No variation").VarSum +=1;
+                opening.variations.find(x => x.Variation == "No variation").TotalWhiteWins += whiteWin;
+                opening.variations.find(x => x.Variation == "No variation").TotalBlackWins += blackWin;
+                opening.variations.find(x => x.Variation == "No variation").TotalDraws += drawWin;
             }
         } else {
             let whiteWin = game.Result == 0?1:0;
@@ -129,9 +138,9 @@ function aggregateData(data) {
             let variationExists = game.Variation == null?false:true;
             let variationsArray = [];
             if (variationExists) {
-                variationsArray.push({Variation: "No variation", VarSum: 0})
-                variationsArray.push({Variation: game.Variation, VarSum: 1});
-            } else { variationsArray.push({Variation: "No variation", VarSum: 1})}
+                variationsArray.push({Variation: "No variation", VarSum: 0, TotalWhiteWins: 0, TotalDraws: 0, TotalBlackWins: 0})
+                variationsArray.push({Variation: game.Variation, VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: draw, TotalBlackWins: blackWin});
+            } else { variationsArray.push({Variation: "No variation", VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: draw, TotalBlackWins: blackWin})}
             let gameRating = game.Rating;
             let newOpening = {name: game.Opening,
                              whiteWins: whiteWin, 
