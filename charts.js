@@ -69,6 +69,21 @@ function drawCharts() {
         width: document.getElementById("beeswarm3Container").getBoundingClientRect().width,
         height: document.getElementById("beeswarm3Container").getBoundingClientRect().height
     });
+    //something for testing variationsstackedbarchart
+    nameOfOpening = "Rat Defense";
+    variationalData = cleanAggregatedData.find(x => x.name == nameOfOpening); //this should maybe be cleaned further? in pre processing?
+    console.log(variationalData)
+    
+    variationsStackedBarChart(variationalData, {  
+        variations: d => d.Variation,
+        whiteperc: d => 100*d.TotalWhiteWins/(d.VarSum),
+        blackperc: d => 100*d.TotalBlackWins/(d.VarSum),
+        drawperc: d => 100*d.TotalDraws/(d.VarSum),
+        //xLabel: "?", //find better wording, "more/increased/greater % winrate" or similar
+        //width: document.getElementById("openingContainer").getBoundingClientRect().width,
+    });
+
+
 }
 
 function removeInsignificantOpenings(data) {

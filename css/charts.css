@@ -4,7 +4,7 @@
           box-sizing: border-box;
   padding: 0px;
   margin: 0px;
-  color: white;
+  color: black;
   font-size: 16px;
   font-family: Poppins, sans-serif;
 }
@@ -134,7 +134,9 @@ body {
 
 #rightSide #openingContainer {
   height: 70vh;
-  border: 1px solid purple;
+  border: 1px solid black;
+  background-color: #fff1e6;
+  text-align: center;
 }
 
 div.tooltip {

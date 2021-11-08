@@ -1,99 +1,150 @@
 function variationsStackedBarChart(data, { //data = en specific opening..?
 
-    color_scheme_provider = d3.interpolateSpectral,
-    margin = {top: 20, right: 20, bottom: 10, left: 50},
-    width = document.getElementById("stackedBarChart").getBoundingClientRect().width,
-    height = (data.length * 25) + margin.top + margin.bottom,
-    //height = data.length * 150 + margin.top + margin.bottom
-    //margin = ({top: 30, right: 30, bottom: 0, left: 190})
-    opening = data.name,
-    variations = d => d,
-    whiteperc = d => d,
-    blackperc = d => d,
-    drawperc = d => d,
+  color_scheme_provider = d3.interpolateSpectral,
+  margin = {top: 25, right: 20, bottom: 10, left: 230}, // change left margin to mess with text and barchart 
+  width = document.getElementById("openingContainer").getBoundingClientRect().width,
+  height = document.getElementById("openingContainer").getBoundingClientRect().height/2 +margin.top,
+  opening = data.name,
+  variations = d => d,
+  whiteperc = d => d,
+  blackperc = d => d,
+  drawperc = d => d,
 
-  } = {}
-  ) {
-    console.log("Opening: "+ opening);
-    const variationArray = data.variations;
-    console.log(variationArray)
-    const varName = d3.map(variationArray, variations);
-    console.log(varName)
-    const winWhite = d3.map(variationArray, whiteperc);
-    const winBlack = d3.map(variationArray, blackperc);
-    const winDraw = d3.map(variationArray, drawperc);
-    console.log(winWhite)
-    console.log(winBlack)
-    console.log(winDraw)
-    for(let i=0;i<variationArray.length;i++) {
-      
-    }
-
-    //values
-    series = d3.stack()
-        (winWhite)
-    console.log(series)
-    //x-axis
-    x = d3.scaleLinear()
-    .domain([0, 100])
-    .range([margin.left, width - margin.right])
-    
-    //y-axis
-    y = d3.scaleBand()
-    .domain(variationArray.map(d => d.Variation))
-    .range([margin.top, height - margin.bottom])
-    .padding(0.1)
-    
-    //Colors
-    color = d3.scaleOrdinal()
-      .domain(series.map(d => d.key))
-      .range(["#0571b0", "#ca0020"])
-    
-    //draw x-axis?
-    xAxis = g => g
-    .attr("transform", `translate(0,${margin.top})`)
-    .call(d3.axisTop(x).ticks(width / 100, "s"))
-    .call(g => g.selectAll(".domain").remove())
-    
-    //draw y-axis
-    yAxis = g => g
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y).tickSizeOuter(0))
-    .call(g => g.selectAll(".domain").remove())
+} = {}
+) {
+  const variationArray = data.variations;
+  const varName = d3.map(variationArray, variations);
+  const winWhite = d3.map(variationArray, whiteperc);
+  const winBlack = d3.map(variationArray, blackperc);
+  const winDraw = d3.map(variationArray, drawperc);
+  const totalGames = data.whiteWins + data.blackWins + data.draws;
+  //remove old chart
+  chartContainer = document.getElementById("openingContainer");
+        while (chartContainer.firstChild != null) {
+            chartContainer.removeChild(chartContainer.lastChild);
+        }
 
 
-    //Chart
-    const svg = d3.create("svg")
-        .attr("viewBox", [0, 0, width, height]);
-  
-    svg.append("g")
-      .selectAll("g")
-      .data(series)
-      .join("g")
-        .attr("fill", d => color(d.key))
-        .attr("stroke", "white")
-      .selectAll("rect")
-      .data(d => d)
-      .join("rect")
-        .attr("x", d => x(d[0]))
-        .attr("y", (d, i) => y(d.data.title))
-        .attr("width", d => x(d[1]) - x(d[0]))
-        .attr("height", y.bandwidth())
-      .append("title")
-        .text(d => `${d.data.title} ${d.key}
-          ${formatValue(d.data[d.key])}`);
-    
-      svg.append("g")
-          .style("font", "25px Roboto")
-          .call(xAxis);
-    
-      svg.append("g")
-          .style("font", "25px Roboto")
-          .call(yAxis);
-
-
-    return null//svgWinrate.node();
+  //Create object to make it easy to stack
+  variationsObject = []
+  for(let i=0;i<variationArray.length;i++) {
+    variationsObject.push({Variation: varName[i], White: winWhite[i], Draw: winDraw[i], Black: winBlack[i]})
   }
+  const noVariation = variationsObject.find(x=>x.Variation=="No variation");
+  const areNoGamesInNoVariation = isNaN(noVariation.White);
+  if (areNoGamesInNoVariation) {
+    variationsObject.splice(0,1)
+  }
+  //Sort variations
+  variationsObject = sortVariationData(variationsObject, "White")
+  function sortVariationData(variationsObject, sortingParameter) {
+    switch (sortingParameter) {
+      case "White": 
+        variationsObject.sort(function(a, b) { return b.White - a.White});
+        return variationsObject
+      case "Black": 
+        variationsObject.sort(function(a, b) { return b.Black - a.Black});
+        return variationsObject
+      case "Draw": 
+        variationsObject.sort(function(a, b) { return b.Draw - a.Draw});
+        return variationsObject
+    }
+  }
+  //Slice variations to only show the 12 highest (on sorting)
+  variationsObject = variationsObject.slice(0,10);
+  var groups = variationsObject.map(v=>v.Variation);
+  var subgroups = ["White", "Draw", "Black"];
+
+  //Name of the opening
+  const title = d3.select("#openingContainer")
+    .append("text")
+    .attr("x",-40)             
+    .attr("y", 0)
+    .attr("text-anchor", "end")  
+    .style("font-size", "30px") 
+    .text(opening);
+  
+  //Chart
+  var svgBarChart = d3.select("#openingContainer")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  
+  //x-axis
+  x = d3.scaleLinear()
+  .domain([0, 100])
+  .range([margin.left, width - margin.right])
+  svgBarChart.append("g")
+    .attr("transform", `translate(0,${margin.top})`)
+    .call(d3.axisTop(x).ticks(3));
+    
+  //y-axis
+  y = d3.scaleBand()
+  .domain(groups)
+  .range([margin.top, margin.top + (25*groups.length)]) //(height - margin.bottom)
+  .padding(0.1);
+  svgBarChart.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    //.style("font", "25px Roboto")
+    .attr('fill', 'black')
+    .style("fill", "#999999")
+    .call(d3.axisLeft(y).tickSizeOuter(0));
+
+  // color palette = one color per subgroup
+  var color = d3.scaleOrdinal()
+    .domain(subgroups)
+    .range(['#F6BD60','#F5CAC3','#84a59d'])
+  
+  //stack the data? --> stack per subgroup
+  var stackedData = d3.stack()
+   .keys(subgroups)
+   (variationsObject)
+
+  // Show the bars
+  svgBarChart.append("g")
+  .selectAll("g")
+  // Enter in the stack data = loop key per key = group per group
+  .data(stackedData)
+  .enter().append("g")
+    .attr("fill", d => color(d.key))
+    .selectAll("rect")
+    // enter a second time = loop subgroup per subgroup to add all rectangles
+    .data(d => d)
+    .enter().append("rect")
+    .attr("x", d => x(d[0]))
+    .attr("y", (d, i) => y(d.data.Variation))
+    .attr("width", d => x(d[1]) - x(d[0]))
+    .attr("height", 22)//y.bandwidth())
+    // .append("text")
+    // .attr("class","label")
+    // .attr("x", (function(d) { return x(d.date); }  ))
+    // .attr("y", function(d) { return y(d.value) - 20; })
+    // .attr("dy", ".75em")
+    // .text(d => d[1]);
+
+
+  // //Add labels to bars
+  // svgBarChart.selectAll(".text")        
+  // .data(stackedData)
+  // .enter()
+  // .append("text")
+  // .attr("class","label")
+  // .attr("x", (function(d) { return x(d.date); }  ))
+  // .attr("y", function(d) { return y(d.value) - 20; })
+  // .attr("dy", ".75em")
+  // .text(function(d) { return d.value; });
+
+  //Add text on how many games vizualized
+  const totalGamesVisualized = d3.select("#openingContainer")
+    .append("text")
+    .attr("x",-40)             
+    .attr("y", 0)
+    .attr("text-anchor", "end")  
+    .style("font-size", "30px") 
+    .text("Visualized on " + totalGames.toLocaleString('en-US') + " games");
+
+  return svgBarChart.node();
+}
 
 function newBeeswarmChart(data, {
     
@@ -266,7 +317,17 @@ function newBeeswarmChart(data, {
           tt.style("opacity", 0);
           xline.attr("opacity", 0);
         });
-        
+    // Mouse click
+    dot.on("click", function(event, d) {
+      const openingClicked = T[d];
+      openingObject = data.find( v => v.name == openingClicked)
+      variationsStackedBarChart(openingObject, {
+        variations: d => d.Variation,
+        whiteperc: d => 100*d.TotalWhiteWins/(d.VarSum),
+        blackperc: d => 100*d.TotalBlackWins/(d.VarSum),
+        drawperc: d => 100*d.TotalDraws/(d.VarSum)
+      })
+    })    
 
   
     return svgWinrate.node();
