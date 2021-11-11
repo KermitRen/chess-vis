@@ -32,6 +32,8 @@ function reload() {
 - Add Brushing and linking
 - Final chart for each opening?
 - Fix: varitions adding to total number of games
+- Fix: not showing anything when a variation is selected and no time-control is checked
+- (Evt. clickable link til opening i chess.com/lichess)
 */
 
 function drawCharts(cleanData) {
@@ -102,6 +104,7 @@ function showcaseOpening(opening) {
         document.getElementById("openingName").innerHTML = "";
     } else {
         document.getElementById("openingName").innerHTML = opening.name;
+        //document.getElementById("openingName").href = "https://dr.dk";//ide med links
     }
 
     //Add Variations
