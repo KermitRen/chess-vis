@@ -1,26 +1,40 @@
 document.addEventListener("DOMContentLoaded", pageLoaded());
 
-let lichessData = []; 
+let lichessData = [];
+let curr_aggregatedData = [];
 
 function pageLoaded() {
     fetch("data/lichess.json")
     .then(response => response.json())
     .then(data => {lichessData = data})
-    .then(_ => {setupPage(); drawCharts()})
+    .then(_ => reload())
 }
 
-function setupPage() {
-
-}
-
-function drawCharts() {
-
-    //Collect data
+function gatherData() {
     let filteredData = applyFilters(lichessData);
     let aggregatedData = aggregateData(filteredData);
-    let cleanAggregatedData = removeInsignificantOpenings(aggregatedData);
-    console.log(cleanAggregatedData.length)
-    console.log(cleanAggregatedData)
+    curr_aggregatedData = aggregatedData;
+    let aggregatedData2 = addPotentialVariations(aggregatedData);
+    return removeInsignificantOpenings(aggregatedData2);
+}
+
+function reload() {
+    cleanData = gatherData();
+    drawCharts(cleanData);
+}
+
+//TODO
+/*
+- Make Elo Slider
+- Adjust threshold function
+- Searchbar?
+- Insert stacked bar chart
+- Add Brushing and linking
+- Final chart for each opening?
+- Fix: varitions adding to total number of games
+*/
+
+function drawCharts(cleanData) {
 
     //Remove all charts
     for (let i=0; i<3;i++) {
@@ -30,45 +44,88 @@ function drawCharts() {
         }
     }
 
-    // minElo = 600;
-    // maxElo = 3000;
+    //Game count
+    gameCount = countGames(cleanData);
+    document.getElementById("gameCounter").innerHTML = "Visualizing <strong>" + numberWithCommas(gameCount) + "</strong> Games";
 
-    //Draw chart
-    newBeeswarmChart(cleanAggregatedData, { 
-        winrate: d => Math.abs(100*((d.whiteWins - d.blackWins)/(d.blackWins+d.whiteWins+d.draws))), 
-        opening: d => d.name,
-        // whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
-        // blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
-        // drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
-        wincolor: d => (d.whiteWins/(d.whiteWins + d.blackWins + d.draws)>(d.blackWins/(d.whiteWins + d.blackWins + d.draws)))?"White":"Black",
-        noOfGames: d => d.whiteWins + d.blackWins + d.draws,
-        xLabel: "% Winrate", //find better wording, "more/increased/greater % winrate" or similar
-        width: document.getElementById("beeswarm1Container").getBoundingClientRect().width,
-        height: document.getElementById("beeswarm1Container").getBoundingClientRect().height
-    });
+    //Winrate Chart
+    BeeswarmChart(cleanData, {
+        value: d => Math.abs(100*((d.whiteWins - d.blackWins)/(d.blackWins+d.whiteWins+d.draws))), 
+        tooltip: d => d.name,
+        color: coloringPoints,
+        outline: outliningPoints,
+        containerID: "beeswarm1Container",
+        xLabel: "Winrate",
+        chartHelp: "This chart shows the percentage one color wins more than the other. <br>" +
+                   "A white dot at 50%, means that white wins 50% more than black for this opening",
+        valueUnit: "%"
+    })
 
-    gameLengthBeeswarmChart(cleanAggregatedData, { 
-        gameLength: d => d.avgGameLength, 
-        opening: d => d.name,
-        // whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
-        // blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
-        // drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
-        wincolor: d => (d.whiteWins/(d.whiteWins + d.blackWins + d.draws)>(d.blackWins/(d.whiteWins + d.blackWins + d.draws)))?"White":"Black",
-        noOfGames: d => d.whiteWins + d.blackWins + d.draws,
-        xLabel: "Game length", //find better wording, "more/increased/greater % winrate" or similar
-        width: document.getElementById("beeswarm2Container").getBoundingClientRect().width,
-        height: document.getElementById("beeswarm2Container").getBoundingClientRect().height
-    });
+    //Popularity Chart
+    BeeswarmChart(cleanData, {
+        value: d => (d.blackWins+d.whiteWins+d.draws)*100/gameCount, 
+        tooltip: d => d.name,
+        color: coloringPoints,
+        outline: outliningPoints,
+        containerID: "beeswarm2Container",
+        xLabel: "Popularity",
+        chartHelp: "This chart shows what percentage of games correponds to each opening on a logarithmic scale",
+        valueUnit: "% of games",
+        logScale: true
+    })
 
-    popularityBeeswarmChart(cleanAggregatedData, { 
-        gameLength: d => d.avgGameLength, 
-        opening: d => d.name,
-        wincolor: d => (d.whiteWins/(d.whiteWins + d.blackWins + d.draws)>(d.blackWins/(d.whiteWins + d.blackWins + d.draws)))?"White":"Black",
-        noOfGames: d => d.whiteWins + d.blackWins + d.draws,
-        xLabel: "Game popularity on a log scale in %", //find better wording, "more/increased/greater % winrate" or similar
-        width: document.getElementById("beeswarm3Container").getBoundingClientRect().width,
-        height: document.getElementById("beeswarm3Container").getBoundingClientRect().height
-    });
+    //Gamelength Chart
+    BeeswarmChart(cleanData, {
+        value: d => d.avgGameLength, 
+        tooltip: d => d.name,
+        color: coloringPoints,
+        outline: outliningPoints,
+        containerID: "beeswarm3Container",
+        xLabel: "Average Gamelength",
+        chartHelp: "This chart shows what the average number of moves is for each opening",
+        valueUnit: "Moves"
+    })
+}
+
+function showcaseOpening(opening) {
+
+    console.log(opening);
+
+    //Abort if variation
+    if(!opening.hasOwnProperty('variations')) {
+        return;
+    }
+
+    //Set Name
+    let selectedOpening = document.getElementById("openingName").innerHTML;
+    if(selectedOpening == opening.name) {
+        document.getElementById("openingName").innerHTML = "";
+    } else {
+        document.getElementById("openingName").innerHTML = opening.name;
+    }
+
+    //Add Variations
+    let aggregatedData = addPotentialVariations(curr_aggregatedData);
+    let cleanData = removeInsignificantOpenings(aggregatedData);
+    drawCharts(cleanData);
+
+    //Stacked Bar Chart
+    let chartContainer = document.getElementById("stackedBarChart");
+    console.log(chartContainer);
+    while (chartContainer.firstChild != null) {
+        console.log("test");
+      chartContainer.removeChild(chartContainer.lastChild);
+    }
+
+    if(document.getElementById("openingName").innerHTML != "") {
+        variationsStackedBarChart(opening, {
+            variations: d => d.name,
+            whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
+            blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
+            drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
+            chartContainerID: "stackedBarChart"
+        });
+    }
 }
 
 function removeInsignificantOpenings(data) {
@@ -99,6 +156,24 @@ function applyFilters(data) {
 
 }
 
+function addPotentialVariations(data) {
+
+    //Find currently selected opening
+    let openingName = document.getElementById("openingName").innerHTML;
+    if(openingName == "") {return data}
+
+    //Add Variations
+    let openingsE = JSON.parse(JSON.stringify(data));
+    let opening = openingsE.find(opening => opening.name == openingName);
+    for(let i = 0; i < opening.variations.length; i++) {
+        let variation = opening.variations[i];
+        variation.name = opening.name + ": " + variation.name;
+        openingsE.push(variation);
+    }
+
+    return openingsE;
+}
+
 function aggregateData(data) {
     let openings = []
 
@@ -108,48 +183,30 @@ function aggregateData(data) {
         if (opening) {
             whiteWin = game.Result == 0?1:0;
             blackWin = game.Result == 1?1:0;
-            drawWin = game.Result == 2?1:0;
+            draw = game.Result == 2?1:0;
             opening.whiteWins += whiteWin;
             opening.blackWins += blackWin;
-            opening.draws += drawWin;
+            opening.draws += draw;
             opening.gameLengthSum += game.noOfMoves;
-            opening.maxRating = Math.max(opening.maxRating, game.Rating);
-            opening.minRating = Math.min(opening.minRating, game.Rating);
-            if (game.Variation) {
-                let existingVariation = opening.variations.find(x => x.Variation == game.Variation);
-                if (existingVariation) {
-                    existingVariation.VarSum += 1;
-                    existingVariation.TotalWhiteWins += whiteWin;
-                    existingVariation.TotalDraws += drawWin;
-                    existingVariation.TotalBlackWins += blackWin;
-                } else {
-                    opening.variations.push({Variation: game.Variation, VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: drawWin, TotalBlackWins: blackWin});
-                }
+            let existingVariation = opening.variations.find(x => x.name == game.Variation);
+            if (existingVariation) {
+                existingVariation.whiteWins += whiteWin;
+                existingVariation.draws += draw;
+                existingVariation.blackWins += blackWin;
+                existingVariation.gameLengthSum += game.noOfMoves;
             } else {
-                opening.variations.find(x => x.Variation == "No variation").VarSum +=1;
-                opening.variations.find(x => x.Variation == "No variation").TotalWhiteWins += whiteWin;
-                opening.variations.find(x => x.Variation == "No variation").TotalBlackWins += blackWin;
-                opening.variations.find(x => x.Variation == "No variation").TotalDraws += drawWin;
-            }
+                opening.variations.push({name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves});
+            } 
         } else {
             let whiteWin = game.Result == 0?1:0;
             let blackWin = game.Result == 1?1:0;
             let draw = game.Result == 2?1:0;
-            let variationExists = game.Variation == null?false:true;
-            let variationsArray = [];
-            if (variationExists) {
-                variationsArray.push({Variation: "No variation", VarSum: 0, TotalWhiteWins: 0, TotalDraws: 0, TotalBlackWins: 0})
-                variationsArray.push({Variation: game.Variation, VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: draw, TotalBlackWins: blackWin});
-            } else { variationsArray.push({Variation: "No variation", VarSum: 1, TotalWhiteWins: whiteWin, TotalDraws: draw, TotalBlackWins: blackWin})}
-            let gameRating = game.Rating;
             let newOpening = {name: game.Opening,
                              whiteWins: whiteWin, 
                              blackWins: blackWin, 
                              draws: draw,
                              gameLengthSum: game.noOfMoves,
-                             variations: variationsArray,
-                             minRating: gameRating,
-                             maxRating: gameRating};
+                             variations: [{name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves}]};
             openings.push(newOpening);
         }
     }
@@ -157,6 +214,41 @@ function aggregateData(data) {
     for (let i = 0; i < openings.length; i++) {
         openings[i]["avgGameLength"] = openings[i].gameLengthSum/(openings[i].whiteWins + openings[i].blackWins + openings[i].draws);
         delete openings[i].gameLengthSum;
+
+        variations = openings[i].variations;
+        for(let j = 0; j < variations.length; j++) {
+            variations[j]["avgGameLength"] = variations[j].gameLengthSum/(variations[j].whiteWins + variations[j].blackWins + variations[j].draws);
+            delete variations[j].gameLengthSum;
+        }
     }
     return openings
+}
+
+function countGames(openings) {
+    return openings.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
+}
+
+function coloringPoints(opening) {
+    let gamesPlayed = opening.whiteWins + opening.blackWins + opening.draws;
+    let whiteWinrate = opening.whiteWins/gamesPlayed;
+    let blackWinrate = opening.blackWins/gamesPlayed;
+    return whiteWinrate>blackWinrate ? "White" : "Black";
+}
+
+function outliningPoints(opening) {
+    
+    //Find selected opening
+    let selectedOpening = document.getElementById("openingName").innerHTML;
+    if(selectedOpening == "") { return "None"};
+
+    //Find correct outline
+    if(!opening.hasOwnProperty('variations')) {
+        return "Blue"
+    } else {
+        return opening.name == selectedOpening? "Red" : "None";
+    }
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }

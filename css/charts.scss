@@ -5,34 +5,72 @@
 body {
     display: flex;
     flex-flow: row nowrap;
+    overflow-y: hidden;
 }
 
 #leftSide {
     width: 70%;
 
     #titleContainer {
-        height: 10vh;
+        height: 7vh;
         background-color: $chessBrown3;
+        position: relative;
 
-        p {
+        #title {
             text-align: center;
             position: relative;
-            font-size: 3vmax;
+            font-size: 2.2vmax;
+            text-transform: uppercase;
             top: 50%;
             transform: translateY(-50%);
+        }
+
+        #gameCounter {
+            position: absolute;
+            right: 5px;
+            font-size: 0.9vmax;
+            bottom: 0px;
         }
     }
 
 
     .beeswarmContainer {
+        position: relative;
         background-color: $chessBrown1;
-        height: 30vh;
-        border-top: 1px solid black;
+        border-top: 3px solid black;
+        height: 31vh;
+        width: 100%;
+
+        .chartTitleContainer {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 2.5%;
+            left: 0;
+            width: 100%;
+
+            p {
+                font-size: 1vmax;
+                margin-right: 10px;
+            }
+
+            i {
+                font-size: 1vmax;
+                cursor: help;
+
+                &:hover {
+                    color: rgba(50,50,50,1);
+                }
+            }
+        }
     }
 }
 
 #rightSide {
     width: 30%;
+    z-index: 0;
 
     #filters {
         height: 30vh;
@@ -82,7 +120,20 @@ body {
 
     #openingContainer {
         height: 70vh;
-        border: 1px solid purple;
+        background-color: $chessBrown2;
+        border: 1px solid black;
+
+        #openingName {
+            margin-top: 3%;
+            font-size: 1.5vmax;
+            text-align: center;
+        }
+
+        #stackedBarChart {
+            width: 100%;
+            height: 300px;
+            border: 1px solid red;
+        }
     }
 }
 
@@ -91,7 +142,7 @@ div.tooltip {
     position: absolute;			
     text-align: left;
     font-family: $poppins;		
-    white-space: normal;					
+    white-space: nowrap;					
     padding: 6px;				
     font-size: 14px;		
     background: #eee;	
@@ -99,6 +150,7 @@ div.tooltip {
     border-radius: 2px;			
     pointer-events: none;
     cursor: none;
+    z-index: 1;
 
     strong {
         color: black;

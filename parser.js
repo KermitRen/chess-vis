@@ -1,4 +1,3 @@
-const { time } = require("console");
 const fs = require("fs");
 const readline = require('readline');
 
@@ -37,10 +36,12 @@ async function pgnToJson(filename) {
     console.log(cleanGames.length);
     let validCleanGames = cleanGames.filter(game => game["noOfMoves"] > 1);
     console.log(validCleanGames.length);
+    validCleanGames = validCleanGames.filter(game => game.Opening != "Blackburne Shilling Gambit"); 
+    console.log(validCleanGames.length);
     fs.writeFile(filename + ".json", JSON.stringify(validCleanGames, null, 2), 'utf8', () => {});
 }
 
-pgnToJson("lichess3");
+pgnToJson("lichess2");
 
 
 function cleanData(games) {
@@ -76,13 +77,11 @@ function cleanData(games) {
                 familyVariation = familyVariation.join(",");
             }
             games[i]["Variation"] = familyVariation.trim();
-        }
-        if(openingString.length > 1) {
-            if(openingFamilySplit.length > 1) {
-                games[i]["Variation"] = games[i]["Variation"] + ", " + openingString[1].trim();
-            } else {
-                games[i]["Variation"] = openingString[1].trim(); 
-            }
+        } else if(openingString.length > 1) {
+            let variationStrings = openingString[1].split(",");
+            games[i]["Variation"] = variationStrings[0].trim(); 
+        } else {
+            games[i]["Variation"] = "Main Line";
         }
     }
 

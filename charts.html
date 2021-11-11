@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Visualization</title>
     <link rel="stylesheet" href="css/charts.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="charts.js"></script>
     <script src ="d3Charts.js"></script>
@@ -13,38 +14,42 @@
 
 <body>
     <div id="leftSide">
-        <div id = "titleContainer"> <p>Chess Visualization</p> </div>
+        <div id = "titleContainer">
+            <p id="title">Visualizing Chess Openings</p>
+            <p id="gameCounter"></p>
+        </div>
         <div id="beeswarm1Container" class="beeswarmContainer"></div>
         <div id="beeswarm2Container" class="beeswarmContainer"></div>
         <div id="beeswarm3Container" class="beeswarmContainer"></div>
-
     </div>
     <div id="rightSide">
         <div id = "filters">
             <div id="eloSlider">
-
+            <!-- Min Elo: 600, Max Elo: ~3000-->
             </div>
             <div id="timeControl">
                 <div class="checkboxContainer">
                     <p>Bullet</p>
-                    <input id ="bulletCheckbox" type="checkbox" checked onclick="drawCharts()">
+                    <input id ="bulletCheckbox" type="checkbox" checked onclick="reload()">
                 </div>
                 <div class="checkboxContainer">
                     <p>Blitz</p>
-                    <input id ="blitzCheckbox" type="checkbox" checked onclick="drawCharts()">
+                    <input id ="blitzCheckbox" type="checkbox" checked onclick="reload()">
                 </div>
                 <div class="checkboxContainer">
                     <p>Rapid</p>
-                    <input id ="rapidCheckbox" type="checkbox" checked onclick="drawCharts()">
+                    <input id ="rapidCheckbox" type="checkbox" checked onclick="reload()">
                 </div>
                 <div class="checkboxContainer">
                     <p>Classical</p>
-                    <input id ="classicalCheckbox" type="checkbox" checked onclick="drawCharts()">
+                    <input id ="classicalCheckbox" type="checkbox" checked onclick="reload()">
                 </div>
             </div>
         </div>
         <div id = "openingContainer">
+            <p id="openingName"></p>
             <div id = "stackedBarChart"></div>
+            <div id = "stackedAreaChart"></div>
         </div>
     </div>
 </body>
