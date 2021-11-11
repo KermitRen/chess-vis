@@ -1,4 +1,3 @@
-
 function variationsStackedBarChart(data, { 
   margin = {top: 25, right: 20, bottom: 10, left: 270},
   chartContainerID,
@@ -167,7 +166,7 @@ function BeeswarmChart(data, {
   const svg = d3.create("svg")
       .attr("width", width)
       .attr("height", height)
-      .attr("viewBox", [0, 0, width, height]);
+      .attr("viewBox", [0, 0, width, height])
 
   // Axis
   svg.append("g")
@@ -205,6 +204,17 @@ function BeeswarmChart(data, {
   var xline = svg.append("line")
   .attr("stroke", "black")
   .attr("stroke-dasharray", "1,2");
+
+  //Brushing
+  const brush = d3.brush()
+      .on("start brush end", brushed);
+
+  brush.on("start", function() {removeOldSelections(containerID)});
+
+  svg.append("g")
+  .attr("class", "brush")
+  .call(brush)
+  .call(g => g.select(".overlay").style("cursor", "default"));
   
   // Dots
   const dots = svg.append("g")
@@ -216,7 +226,24 @@ function BeeswarmChart(data, {
       .attr("r", radius)
       .attr("fill", i => C[i])
       .attr("stroke", i => O[i])
+      .attr("pointer-events", "all")
       .style("cursor", "pointer");
+
+  //svg.selectAll("circle")
+  //.attr("cx", (test, i) => { console.log(test);console.log(i)})
+  
+  function brushed({selection}) {
+    if (selection === null) {
+      dots.attr("stroke", null);
+    } else {
+      const [[x0, y0], [x1, y1]] = selection;
+      dots.attr("stroke", i => {
+        let x = xScale(X[i]);
+        let y = (marginTop + height - marginBottom) / 2 + Y[i]
+        return (x > x0 && x < x1 && y > y0 && y < y1) ? "Red" : "None"
+      });
+    }
+  }
 
   // Tooltip
   let tt = document.createElement("div");
@@ -299,4 +326,14 @@ function dodge(X, radius) {
   }
 
   return Y;
+}
+
+function removeOldSelections(containerID) {
+
+  for(let i = 0; i < 3; i++) {
+    id = "beeswarm" + i + "Container";
+    if(id != containerID) {
+      let beeswarm = document.getElementById(id);
+    }
+  }
 }
