@@ -50,10 +50,13 @@ function reload() {
 
 //TODO
 /*
-- Adjust threshold function
-- Clean up barchart
+- Clean up barchart  også threshhold
 - Final chart for each opening?
 - (Evt. clickable link til opening i chess.com/lichess)
+- hover highlight
+- fjern tital bar i hvert bee plot
+- ledger til bar chart, plus sorteringsfunktion
+- sorter barchart efter farven på den circle man klikker på
 */
 
 function drawCharts(cleanData) {
@@ -149,12 +152,11 @@ function showcaseOpening(opening) {
 
 function removeInsignificantOpenings(data) {
 
-    const threshold = 0.00005;
-    let totalGames = countGames(data);
+    const threshold = 15;
 
     return data.filter(opening => {
         let gameCount = opening.blackWins + opening.whiteWins + opening.draws;
-        return gameCount/totalGames > threshold;
+        return gameCount > threshold;
     })
 }
 
@@ -275,7 +277,7 @@ function outliningPoints(opening) {
 }
 
 function numberWithCommas(x) {
-    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    return x.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 }
 
 async function getOpenings() {

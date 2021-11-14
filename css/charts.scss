@@ -87,7 +87,7 @@ body {
         }
 
         .filterLabel:not(:first-child) {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         #openingSearchbar {
@@ -106,11 +106,12 @@ body {
         }
 
         #sliderContainer {
-            
+            border: 1px solid red;
+            height: 20%;
             #eloSlider {
                 border: 1px solid black;
                 position: relative;
-                height:30px;
+                height:40%;
                 background-color: #eeeef5;
             }
 
@@ -138,6 +139,7 @@ body {
 
         #timeControl {
             height: 30%;
+            border: 1px solid purple;
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-around;

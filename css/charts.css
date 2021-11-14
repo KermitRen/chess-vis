@@ -130,7 +130,7 @@ body {
 }
 
 #rightSide #filters .filterLabel:not(:first-child) {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 #rightSide #filters #openingSearchbar {
@@ -160,10 +160,15 @@ body {
   opacity: 0.5;
 }
 
+#rightSide #filters #sliderContainer {
+  border: 1px solid red;
+  height: 20%;
+}
+
 #rightSide #filters #sliderContainer #eloSlider {
   border: 1px solid black;
   position: relative;
-  height: 30px;
+  height: 40%;
   background-color: #eeeef5;
 }
 
@@ -193,6 +198,7 @@ body {
 
 #rightSide #filters #timeControl {
   height: 30%;
+  border: 1px solid purple;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
