@@ -1,13 +1,38 @@
 document.addEventListener("DOMContentLoaded", pageLoaded());
 
 let lichessData = [];
+let openings = [];
 let curr_aggregatedData = [];
+var eloSlider;
 
 function pageLoaded() {
     fetch("data/lichess.json")
     .then(response => response.json())
     .then(data => {lichessData = data})
-    .then(_ => reload())
+    .then(_ => {setupSearchbar();setupSlider();reload()})
+}
+
+function setupSlider() {
+    var slider = createD3RangeSlider(600, 3000, "#eloSlider");
+    eloSlider = slider; 
+    slider.onChange(function(range) {
+        let rangeLabel = document.getElementById("currRange");
+        rangeLabel.innerHTML = "Rating: " + range.begin + " - " + range.end;
+    })
+    slider.range(1000,2000);
+    slider.onTouchEnd(function(){reload()});
+}
+
+async function setupSearchbar() {
+    let openingNames = await getOpenings();
+    openings = openingNames;
+    let datalist = document.getElementById("openingNames");
+
+    for(let i = 0; i < openingNames.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = openingNames[i];
+        datalist.appendChild(option);
+    }
 }
 
 function gatherData() {
@@ -25,14 +50,9 @@ function reload() {
 
 //TODO
 /*
-- Make Elo Slider
 - Adjust threshold function
-- Searchbar?
-- Insert stacked bar chart
-- Add Brushing and linking
+- Clean up barchart
 - Final chart for each opening?
-- Fix: varitions adding to total number of games
-- Fix: not showing anything when a variation is selected and no time-control is checked
 - (Evt. clickable link til opening i chess.com/lichess)
 */
 
@@ -91,8 +111,6 @@ function drawCharts(cleanData) {
 
 function showcaseOpening(opening) {
 
-    console.log(opening);
-
     //Abort if variation
     if(!opening.hasOwnProperty('variations')) {
         return;
@@ -114,9 +132,7 @@ function showcaseOpening(opening) {
 
     //Stacked Bar Chart
     let chartContainer = document.getElementById("stackedBarChart");
-    console.log(chartContainer);
     while (chartContainer.firstChild != null) {
-        console.log("test");
       chartContainer.removeChild(chartContainer.lastChild);
     }
 
@@ -134,10 +150,7 @@ function showcaseOpening(opening) {
 function removeInsignificantOpenings(data) {
 
     const threshold = 0.00005;
-    let totalGames = 0;
-    for(let i = 0; i < data.length; i++) {
-        totalGames += (data[i].blackWins + data[i].whiteWins + data[i].draws);
-    }
+    let totalGames = countGames(data);
 
     return data.filter(opening => {
         let gameCount = opening.blackWins + opening.whiteWins + opening.draws;
@@ -148,6 +161,7 @@ function removeInsignificantOpenings(data) {
 function applyFilters(data) {
     
     //Elo Filter
+    let eloRange = eloSlider.range(null,null);
 
     //Time Control Filter
     let timeControls = [];
@@ -155,8 +169,8 @@ function applyFilters(data) {
     if(document.getElementById("blitzCheckbox").checked) {timeControls.push(2)};
     if(document.getElementById("rapidCheckbox").checked) {timeControls.push(3)};
     if(document.getElementById("classicalCheckbox").checked) {timeControls.push(4)};
-    return data.filter(game => timeControls.includes(game.TimeControl));
 
+    return data.filter(game => timeControls.includes(game.TimeControl) && game.Rating > eloRange.begin && game.Rating < eloRange.end);
 }
 
 function addPotentialVariations(data) {
@@ -168,11 +182,13 @@ function addPotentialVariations(data) {
     //Add Variations
     let openingsE = JSON.parse(JSON.stringify(data));
     let opening = openingsE.find(opening => opening.name == openingName);
-    for(let i = 0; i < opening.variations.length; i++) {
-        let variation = opening.variations[i];
-        variation.name = opening.name + ": " + variation.name;
-        openingsE.push(variation);
-    }
+    if(opening) {
+        for(let i = 0; i < opening.variations.length; i++) {
+            let variation = opening.variations[i];
+            variation.name = opening.name + ": " + variation.name;
+            openingsE.push(variation);
+        }
+    }  
 
     return openingsE;
 }
@@ -228,7 +244,13 @@ function aggregateData(data) {
 }
 
 function countGames(openings) {
-    return openings.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
+    return openings.reduce((prev, curr) => {
+        if(curr.hasOwnProperty('variations')) {
+            return prev + curr.whiteWins + curr.blackWins + curr.draws;
+        } else {
+            return prev;
+        }
+    }, 0)
 }
 
 function coloringPoints(opening) {
@@ -254,4 +276,21 @@ function outliningPoints(opening) {
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+}
+
+async function getOpenings() {
+    const response = await fetch("data/openings.json");
+    let openings = await response.json();
+    return openings;
+}
+
+function searchOpening() {
+    let openingName = document.getElementById("openingSearchbar").value; 
+    if(openings.includes(openingName)) {
+        let opening = curr_aggregatedData.find(x => x.name == openingName);
+        if(opening != null) {
+            document.getElementById("openingSearchbar").value = "";
+            showcaseOpening(opening);
+        }
+    }
 }

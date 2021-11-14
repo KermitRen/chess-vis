@@ -111,22 +111,88 @@ body {
 
 #rightSide {
   width: 30%;
+  height: 100vh;
   z-index: 0;
 }
 
 #rightSide #filters {
-  height: 30vh;
+  height: 32%;
   background-color: #735e4d;
+  border-left: 3px solid black;
+  padding: 3%;
 }
 
-#rightSide #filters #eloSlider {
+#rightSide #filters .filterLabel {
+  font-size: 1vmax;
+  font-weight: 500;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+#rightSide #filters .filterLabel:not(:first-child) {
+  margin-top: 20px;
+}
+
+#rightSide #filters #openingSearchbar {
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  width: 70%;
+  height: 10%;
+  font-size: 0.9vmax;
+  padding-left: 5px;
+  text-transform: capitalize;
+}
+
+#rightSide #filters #openingSearchbar::-webkit-input-placeholder {
+  opacity: 0.5;
+}
+
+#rightSide #filters #openingSearchbar:-ms-input-placeholder {
+  opacity: 0.5;
+}
+
+#rightSide #filters #openingSearchbar::-ms-input-placeholder {
+  opacity: 0.5;
+}
+
+#rightSide #filters #openingSearchbar::placeholder {
+  opacity: 0.5;
+}
+
+#rightSide #filters #sliderContainer #eloSlider {
   border: 1px solid black;
-  height: 60%;
+  position: relative;
+  height: 30px;
+  background-color: #eeeef5;
+}
+
+#rightSide #filters #sliderContainer #ticks {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+}
+
+#rightSide #filters #sliderContainer #ticks .tickmark {
+  position: relative;
+  height: 6px;
+  border-left: 1px solid black;
+  width: 0;
+}
+
+#rightSide #filters #sliderContainer #ticks .tickmark p {
+  position: absolute;
+  bottom: -15px;
+  left: -12px;
+  font-size: 0.6vmax;
 }
 
 #rightSide #filters #timeControl {
-  height: 40%;
-  border: 1px solid black;
+  height: 30%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -158,9 +224,9 @@ body {
 }
 
 #rightSide #filters #timeControl .checkboxContainer p {
-  font-size: 1.2vmax;
-  font-weight: 500;
-  margin-bottom: 10px;
+  font-size: 1.1vmax;
+  font-weight: 400;
+  margin-top: 10px;
 }
 
 #rightSide #filters #timeControl .checkboxContainer input[type=checkbox] {
@@ -180,9 +246,10 @@ body {
 }
 
 #rightSide #openingContainer {
-  height: 70vh;
+  height: 68%;
   background-color: #b09076;
-  border: 1px solid black;
+  border-left: 3px solid black;
+  border-top: 1px solid black;
 }
 
 #rightSide #openingContainer #openingName {
@@ -216,5 +283,42 @@ div.tooltip {
 
 div.tooltip strong {
   color: black;
+}
+
+.slider {
+  position: absolute;
+  border: 1px solid #AAB;
+  background: #BCE;
+  height: 100%;
+  width: 58px;
+  top: 0px;
+  cursor: move;
+}
+
+.slider .handle {
+  position: absolute;
+  height: 9px;
+  width: 9px;
+  border: 1px solid #AAB;
+  background: #9AC;
+  /* Support for bootstrap */
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.slider .EE {
+  right: -4px;
+  cursor: e-resize;
+}
+
+.slider .WW {
+  cursor: w-resize;
+  left: -4px;
+}
+
+.slider .EE, .slider .WW {
+  top: 50%;
+  margin-top: -4px;
 }
 /*# sourceMappingURL=charts.css.map */

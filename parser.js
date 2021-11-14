@@ -38,6 +38,7 @@ async function pgnToJson(filename) {
     console.log(validCleanGames.length);
     validCleanGames = validCleanGames.filter(game => game.Opening != "Blackburne Shilling Gambit"); 
     console.log(validCleanGames.length);
+    saveOpenings(validCleanGames);
     fs.writeFile(filename + ".json", JSON.stringify(validCleanGames, null, 2), 'utf8', () => {});
 }
 
@@ -121,4 +122,14 @@ function lengthOfGame(gameString) {
     } else {
         return 0;
     }
+}
+
+function saveOpenings(games) {
+    let openingArray = []
+    for(let i = 0; i < games.length; i++) {
+        if(!openingArray.includes(games[i].Opening)) {
+            openingArray.push(games[i].Opening);
+        }
+    }
+    fs.writeFile("openings.json", JSON.stringify(openingArray, null, 2), 'utf8', () => {});
 }

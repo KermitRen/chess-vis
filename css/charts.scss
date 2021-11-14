@@ -70,20 +70,74 @@ body {
 
 #rightSide {
     width: 30%;
+    height: 100vh;
     z-index: 0;
 
     #filters {
-        height: 30vh;
+        height: 32%;
         background-color: $chessBrown4;
+        border-left: 3px solid black;
+        padding: 3%;
 
-        #eloSlider {
-            border: 1px solid black;
-            height: 60%;
+        .filterLabel {
+            font-size: 1vmax;
+            font-weight: 500;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .filterLabel:not(:first-child) {
+            margin-top: 20px;
+        }
+
+        #openingSearchbar {
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            width: 70%;
+            height: 10%;
+            font-size: 0.9vmax;
+            padding-left: 5px;
+            text-transform: capitalize;
+
+            &::placeholder {
+                opacity: 0.5;
+            }
+        }
+
+        #sliderContainer {
+            
+            #eloSlider {
+                border: 1px solid black;
+                position: relative;
+                height:30px;
+                background-color: #eeeef5;
+            }
+
+            #ticks {
+                display: flex;
+                flex-flow: row nowrap;
+
+                .tickmark {
+                    position: relative;
+                    height: 6px;
+                    border-left: 1px solid black;
+                    width: 0;
+
+                    p {
+                        position: absolute;
+                        bottom: -15px;
+                        left: -12px;
+                        font-size: 0.6vmax;
+                    }
+                }
+
+            }
+
         }
 
         #timeControl {
-            height: 40%;
-            border: 1px solid black;
+            height: 30%;
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-around;
@@ -96,9 +150,9 @@ body {
                 align-items: center;
 
                 p {
-                    font-size: 1.2vmax;
-                    font-weight: 500;
-                    margin-bottom: 10px;
+                    font-size: 1.1vmax;
+                    font-weight: 400;
+                    margin-top: 10px;
                 }
 
                 input[type=checkbox] {
@@ -119,9 +173,10 @@ body {
     }
 
     #openingContainer {
-        height: 70vh;
+        height: 68%;
         background-color: $chessBrown2;
-        border: 1px solid black;
+        border-left: 3px solid black;
+        border-top: 1px solid black;
 
         #openingName {
             margin-top: 3%;
@@ -157,3 +212,43 @@ div.tooltip {
         color: black;
     }
 }
+
+.slider {
+    position: absolute;
+    border: 1px solid #AAB;
+    background: #BCE;
+    height: 100%;
+    width: 58px;
+    top: 0px;
+    cursor: move;
+    //margin:-0.5px;
+}
+
+.slider .handle {
+    position: absolute;
+    height: 9px;
+    width: 9px;
+    border: 1px solid #AAB;
+    background: #9AC;
+
+    /* Support for bootstrap */
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.slider .EE {
+    right: -4px;
+    cursor: e-resize;
+}
+
+.slider .WW {
+    cursor: w-resize;
+    left: -4px;
+}
+
+.slider .EE, .slider .WW {
+    top: 50%;
+    margin-top: -4px;
+}
+

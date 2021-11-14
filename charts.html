@@ -10,6 +10,7 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="charts.js"></script>
     <script src ="d3Charts.js"></script>
+    <script src="d3RangeSlider.js"></script>
 </head>
 <body>
     <div id="leftSide">
@@ -23,25 +24,39 @@
     </div>
     <div id="rightSide">
         <div id = "filters">
-            <div id="eloSlider">
-            <!-- Min Elo: 600, Max Elo: ~3000-->
+            <p class = "filterLabel">Search</p>
+            <input id="openingSearchbar" oninput="searchOpening()" type="text" autocomplete="off" spellcheck="false" placeholder="Search Openings..." list="openingNames">
+            <datalist id = "openingNames"></datalist>
+            <p class = "filterLabel" id="currRange">Rating</p>
+            <div id="sliderContainer">
+                <div id="eloSlider"></div>
+                <div id="ticks">
+                    <div class="tickmark" style="margin-right: 16.66%"><p>600</p></div>
+                    <div class="tickmark" style="margin-right: 20.55%"><p>1000</p></div>
+                    <div class="tickmark" style="margin-right: 20.55%"><p>1500</p></div>
+                    <div class="tickmark" style="margin-right: 20.55%"><p>2000</p></div>
+                    <div class="tickmark" style="margin-right: 20.55%"><p>2500</p></div>
+                    <div class="tickmark"><p>3000</p></div>
+                </div>
+                <p id="currRange"></p>
             </div>
+            <p class = "filterLabel">Time Controls</p>
             <div id="timeControl">
                 <div class="checkboxContainer">
-                    <p>Bullet</p>
                     <input id ="bulletCheckbox" type="checkbox" checked onclick="reload()">
+                    <p>Bullet</p>
                 </div>
                 <div class="checkboxContainer">
-                    <p>Blitz</p>
                     <input id ="blitzCheckbox" type="checkbox" checked onclick="reload()">
+                    <p>Blitz</p>
                 </div>
                 <div class="checkboxContainer">
-                    <p>Rapid</p>
                     <input id ="rapidCheckbox" type="checkbox" checked onclick="reload()">
+                    <p>Rapid</p>
                 </div>
                 <div class="checkboxContainer">
-                    <p>Classical</p>
                     <input id ="classicalCheckbox" type="checkbox" checked onclick="reload()">
+                    <p>Classical</p>
                 </div>
             </div>
         </div>

@@ -19,11 +19,9 @@ function variationsStackedBarChart(data, {
 
   //Create object to make it easy to stack
   variationsObject = []
-  for(let i=0;i<variationArray.length;i++) {
+  for(let i = 0; i < variationArray.length; i++) {
     variationsObject.push({Variation: varName[i], White: winWhite[i], Draw: winDraw[i], Black: winBlack[i]})
   }
-
-  console.log(variationsObject);
 
   //Sort variations
   variationsObject = sortVariationData(variationsObject, "White")
@@ -41,8 +39,6 @@ function variationsStackedBarChart(data, {
     }
   }
 
-  console.log(variationsObject);
-
   //Slice variations to only show the 10 highest (on sorting)
   variationsObject = variationsObject.slice(0,10);
   var groups = variationsObject.map(v=>v.Variation);
@@ -56,8 +52,9 @@ function variationsStackedBarChart(data, {
   
   //x-axis
   x = d3.scaleLinear()
-  .domain([0, 100])
-  .range([margin.left, width - margin.right])
+    .domain([0, 100])
+    .range([margin.left, width - margin.right]);
+
   svgBarChart.append("g")
     .attr("transform", `translate(0,${margin.top})`)
     .call(d3.axisTop(x).ticks(3));
@@ -67,9 +64,9 @@ function variationsStackedBarChart(data, {
   .domain(groups)
   .range([margin.top, margin.top + (25*groups.length)]) //(height - margin.bottom)
   .padding(0.1);
+
   svgBarChart.append("g")
     .attr("transform", `translate(${margin.left},0)`)
-    //.style("font", "25px Roboto")
     .attr('fill', 'black')
     .style("fill", "#999999")
     .call(d3.axisLeft(y).tickSizeOuter(0));
@@ -228,20 +225,24 @@ function BeeswarmChart(data, {
       .attr("stroke", i => O[i])
       .attr("pointer-events", "all")
       .style("cursor", "pointer");
-
-  //svg.selectAll("circle")
-  //.attr("cx", (test, i) => { console.log(test);console.log(i)})
   
   function brushed({selection}) {
     if (selection === null) {
-      dots.attr("stroke", null);
+      highlightAllDots([]);
     } else {
       const [[x0, y0], [x1, y1]] = selection;
-      dots.attr("stroke", i => {
+      let selectedIndexes = I.filter( i => {
         let x = xScale(X[i]);
-        let y = (marginTop + height - marginBottom) / 2 + Y[i]
-        return (x > x0 && x < x1 && y > y0 && y < y1) ? "Red" : "None"
-      });
+        let y = (marginTop + height - marginBottom) / 2 + Y[i];
+        let selectedOpening = document.getElementById("openingName").innerHTML;
+        if(selectedOpening == "") {
+          return (x > x0 && x < x1 && y > y0 && y < y1);
+        } else {
+          return (((!data[i].hasOwnProperty('variations')) || data[i].name == selectedOpening) && x > x0 && x < x1 && y > y0 && y < y1);
+        }
+      })
+      
+      highlightAllDots(selectedIndexes);
     }
   }
 
@@ -329,11 +330,26 @@ function dodge(X, radius) {
 }
 
 function removeOldSelections(containerID) {
-
   for(let i = 0; i < 3; i++) {
-    id = "beeswarm" + i + "Container";
+    id = "beeswarm" + (i + 1) + "Container";
     if(id != containerID) {
-      let beeswarm = document.getElementById(id);
+      let svg = d3.select("#" + id + " svg");
+      svg.select(".brush").call(d3.brush().clear);
     }
+  }
+}
+
+function highlightDots(indexes, containerID) {
+  let svg = d3.select("#" + containerID + " svg");
+  if(indexes.length > 0) {
+    svg.selectAll("circle").attr("opacity", (i) => indexes.includes(i) ? 1 : 0.2);
+  } else {
+    svg.selectAll("circle").attr("opacity", 1);
+  }
+}
+
+function highlightAllDots(indexes) {
+  for(let i = 0; i < 3; i++) {
+    highlightDots(indexes, "beeswarm" + (i + 1) + "Container");
   }
 }
