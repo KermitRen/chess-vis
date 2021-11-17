@@ -80,6 +80,9 @@ function reload() {
 - ledger til bar chart, plus sorteringsfunktion
 - sorter barchart efter farven på den circle man klikker på
 - transitions?
+- deselect by cliking nothing
+- Fix: too long leaderline
+- Fix: Slider escaping from mouse
 */
 
 //Special TODO:
