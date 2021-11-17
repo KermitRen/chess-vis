@@ -83,10 +83,7 @@ function reload() {
 */
 
 //Special TODO:
-/*
-- change gitIgnore
-- Setup github pages
-*/
+// Setup github pages
 
 function drawCharts(cleanData) {
 
