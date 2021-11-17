@@ -7,6 +7,7 @@ function variationsStackedBarChart(data, {
   drawperc = d => d,
 
 } = {}) {
+
   const variationArray = data.variations;
   const varName = d3.map(variationArray, variations);
   const winWhite = d3.map(variationArray, whiteperc);
@@ -223,15 +224,25 @@ function BeeswarmChart(data, {
       .attr("r", radius)
       .attr("fill", i => C[i])
       .attr("stroke", i => O[i])
+      .attr("opacity", i => {
+        let selectedOpening = document.getElementById("openingName").innerHTML;
+        if(selectedOpening == "") {
+          return 1;
+        } else {
+          return ((!data[i].hasOwnProperty('variations')) || data[i].name == selectedOpening) ? 1 : 0.2;
+        }
+      })
       .attr("pointer-events", "all")
       .style("cursor", "pointer");
   
+  var lastSelection = [];  
   function brushed({selection}) {
-    if (selection === null) {
-      highlightAllDots([]);
-    } else {
+
+    //Find indexes in selection
+    let selectedIndexes = [];
+    if (selection != null) {
       const [[x0, y0], [x1, y1]] = selection;
-      let selectedIndexes = I.filter( i => {
+      selectedIndexes = I.filter( i => {
         let x = xScale(X[i]);
         let y = (marginTop + height - marginBottom) / 2 + Y[i];
         let selectedOpening = document.getElementById("openingName").innerHTML;
@@ -241,9 +252,27 @@ function BeeswarmChart(data, {
           return (((!data[i].hasOwnProperty('variations')) || data[i].name == selectedOpening) && x > x0 && x < x1 && y > y0 && y < y1);
         }
       })
-      
-      highlightAllDots(selectedIndexes);
     }
+    
+    //Highlight selection
+    if(!equalArrays(lastSelection, selectedIndexes)) {
+      let resetOpacity = (selectedIndexes.length > 0) ? false : true;
+      for(let i = 0; i < 3; i++) {
+        beeswarmContainerID = "beeswarm" + (i + 1) + "Container";
+
+        let svg = d3.select("#" + beeswarmContainerID + " svg");
+        if(document.getElementById("openingName").innerHTML == "") {
+          svg.selectAll("circle")
+          .attr("opacity", i => (resetOpacity || selectedIndexes.includes(i)) ? 1 : 0.2);
+        } else {
+          svg.selectAll("circle")
+          .filter(function() {return d3.select(this).attr("stroke") != "None";})
+          .attr("opacity", i => (resetOpacity || selectedIndexes.includes(i)) ? 1 : 0.2);
+        }
+      }
+      lastSelection = selectedIndexes;
+    }
+
   }
 
   // Tooltip
@@ -339,17 +368,15 @@ function removeOldSelections(containerID) {
   }
 }
 
-function highlightDots(indexes, containerID) {
-  let svg = d3.select("#" + containerID + " svg");
-  if(indexes.length > 0) {
-    svg.selectAll("circle").attr("opacity", (i) => indexes.includes(i) ? 1 : 0.2);
-  } else {
-    svg.selectAll("circle").attr("opacity", 1);
-  }
-}
+function equalArrays(array1, array2) {
+  let length1 = array1.length;
+  let length2 = array2.length;
 
-function highlightAllDots(indexes) {
-  for(let i = 0; i < 3; i++) {
-    highlightDots(indexes, "beeswarm" + (i + 1) + "Container");
+  if(length1 != length2) {return false};
+
+  for(let i = 0; i < length1; i++) {
+    if(array1[i] != array2[i]) {return false};
   }
+
+  return true;
 }

@@ -18,11 +18,11 @@
  function createD3RangeSlider (rangeMin, rangeMax, containerSelector) {
     "use strict";
 
-    var minWidth = 0; 
-    var totalSliderSize = document.querySelector(containerSelector).getBoundingClientRect().width;
+    const snapInterval = 50;
+    var totalSliderSize = document.querySelector(containerSelector).clientWidth;
     var minInterval = 200;
     var minFraction = minInterval/(rangeMax-rangeMin);
-    var minValueWidth = minFraction*totalSliderSize;
+    var minWidth = minFraction*totalSliderSize;
 
     var sliderRange = {begin: rangeMin, end: rangeMin};
     var changeListeners = [];
@@ -33,7 +33,7 @@
 
     var sliderBox = container.append("div")
         .style("position", "relative")
-        .style("height", containerHeight + "px")
+        .style("height", (containerHeight - 1) + "px")
         .style("min-width", (minWidth*2) + "px")
         .classed("slider-container", true);
 
@@ -46,40 +46,50 @@
 
     /** Update the `left` and `width` attributes of `slider` based on `sliderRange` */
     function updateUIFromRange () {
-        var conW = sliderBox.node().clientWidth;
-        var rangeW = sliderRange.end - sliderRange.begin;
-        var slope = (conW - minWidth) / (rangeMax - rangeMin);
-        var uirangeW = minWidth + rangeW * slope;
-        var ratio = (sliderRange.begin - rangeMin) / (rangeMax - rangeMin - rangeW);
-        if (isNaN(ratio)) {
-            ratio = 0;
-        }
-        var uirangeL = ratio * (conW - uirangeW)
+
+        let interval = (rangeMax-rangeMin)
+        let startX = (totalSliderSize * (sliderRange.begin-rangeMin))/interval;
+        let endX = (totalSliderSize * (sliderRange.end-rangeMin))/interval;
+
         slider
-            .style("left", uirangeL + "px")
-            .style("width", uirangeW + "px");
+            .style("left", startX+ "px")
+            .style("width", (endX-startX) + "px");
     }
 
     /** Update the `sliderRange` based on the `left` and `width` attributes of `slider` */
     function updateRangeFromUI () {
         var uirangeL = parseFloat(slider.style("left"));
         var uirangeW = parseFloat(slider.style("width"));
-        var conW = sliderBox.node().clientWidth; //parseFloat(container.style("width"));
-        var slope = (conW - minWidth) / (rangeMax - rangeMin);
-        var rangeW = (uirangeW - minWidth) / slope;
+        var conW = totalSliderSize; //parseFloat(container.style("width"));
+        var slope = (conW) / (rangeMax - rangeMin);
+        var rangeW = (uirangeW) / slope;
         if (conW == uirangeW) {
             var uislope = 0;
         } else {
             var uislope = (rangeMax - rangeMin - rangeW) / (conW - uirangeW);
         }
         var rangeL = rangeMin + uislope * uirangeL;
-        sliderRange.begin = Math.round(rangeL);
-        sliderRange.end = Math.round(rangeL + rangeW);
 
-        //Fire change listeners
-        changeListeners.forEach(function (callback) {
-            callback({begin: sliderRange.begin, end: sliderRange.end});
-        });
+        let newBegin = Math.round(rangeL) > rangeMax - minInterval ? (rangeMax - minInterval) : Math.round(rangeL);
+        let newEnd = Math.round(rangeL + rangeW) > rangeMax ? rangeMax : Math.round(rangeL + rangeW);
+        
+        if(newBegin != sliderRange.begin || newEnd != sliderRange.end) {
+            sliderRange.begin = newBegin;
+            sliderRange.end = newEnd;
+    
+            //Fire change listeners
+            changeListeners.forEach(function (callback) {
+                callback({begin: sliderRange.begin, end: sliderRange.end});
+            });
+        }
+    }
+
+    function findNearestSnap(x) {
+
+        let interval = (rangeMax-rangeMin)
+        let currentVal = (interval * x)/totalSliderSize + rangeMin;
+        let bestSnapVal = Math.round(currentVal/snapInterval)*snapInterval;
+        return ((totalSliderSize * (bestSnapVal-rangeMin))/interval);
     }
 
     // configure drag behavior for handles and slider
@@ -97,7 +107,9 @@
             if (dx == 0) return;
             var newWidth = dx;
             var left = parseFloat(slider.style("left"));
-            newWidth = Math.max(newWidth, minWidth+minValueWidth);
+            newWidth = Math.max(newWidth, minWidth);
+            let snapRight = findNearestSnap(left+newWidth);
+            newWidth = snapRight-left;
 
             if ((left + newWidth) > totalSliderSize) { 
                 newWidth = totalSliderSize - left;
@@ -120,15 +132,18 @@
             var dx = event.x;
             if (dx==0) return;
             var newLeft = parseFloat(slider.style("left")) + dx;
+            let snapLeft = findNearestSnap(newLeft);
             var newWidth = parseFloat(slider.style("width")) - dx;
+            newWidth = newWidth + (newLeft-snapLeft);
+            newLeft = snapLeft;
 
             if (newLeft < 0) {
                 newWidth += newLeft;
                 newLeft = 0;
             }
-            if (newWidth < minWidth+minValueWidth) { 
-                newLeft -= minWidth+minValueWidth - newWidth;
-                newWidth = minWidth+minValueWidth;
+            if (newWidth < minWidth) { 
+                newLeft -= minWidth - newWidth;
+                newWidth = minWidth;
             }
 
             slider.style("left", newLeft + "px");
@@ -137,8 +152,11 @@
             updateRangeFromUI();
         });
 
+    var lastKnownX;
+
     var dragMove = d3.drag()
         .on("start", function (event, d) {
+            lastKnownX = event.x;
         })
         .on("end", function () {
             touchEndListeners.forEach(function (callback) {
@@ -146,14 +164,17 @@
             });
         })
         .on("drag", function (event, d) {
-            var dx = event.dx;;
-            var conWidth = sliderBox.node().clientWidth;
-            var newLeft = parseInt(slider.style("left")) + dx;
-            var newWidth = parseInt(slider.style("width"));
-
+            var dx = event.x-lastKnownX;
+            var oldLeft = parseFloat(slider.style("left"));
+            var oldWidth = parseFloat(slider.style("width"));
+            var newLeft = findNearestSnap(oldLeft + dx);
             newLeft = Math.max(newLeft, 0);
-            newLeft = Math.min(newLeft, conWidth - newWidth);
-            slider.style("left", newLeft + "px");
+            if(((rangeMax-rangeMin) * (oldLeft+dx+oldWidth))/totalSliderSize + rangeMin <= rangeMax) {
+                if(Math.floor(oldLeft) != Math.floor(newLeft)) {
+                    lastKnownX = event.x;
+                    slider.style("left", newLeft + "px");
+                }   
+            }
             
             updateRangeFromUI();
         });

@@ -73,6 +73,11 @@ body {
   border-top: 3px solid black;
   height: 31vh;
   width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 #leftSide .beeswarmContainer .chartTitleContainer {
@@ -91,8 +96,9 @@ body {
           justify-content: center;
   position: absolute;
   top: 2.5%;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
 }
 
 #leftSide .beeswarmContainer .chartTitleContainer p {
@@ -116,21 +122,23 @@ body {
 }
 
 #rightSide #filters {
+  position: relative;
   height: 32%;
   background-color: #735e4d;
   border-left: 3px solid black;
-  padding: 3%;
+  padding: 3% 5%;
 }
 
 #rightSide #filters .filterLabel {
   font-size: 1vmax;
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 1%;
+  height: 12%;
   text-transform: uppercase;
 }
 
 #rightSide #filters .filterLabel:not(:first-child) {
-  margin-top: 10px;
+  margin-top: 3%;
 }
 
 #rightSide #filters #openingSearchbar {
@@ -161,14 +169,13 @@ body {
 }
 
 #rightSide #filters #sliderContainer {
-  border: 1px solid red;
-  height: 20%;
+  height: 16%;
 }
 
 #rightSide #filters #sliderContainer #eloSlider {
   border: 1px solid black;
   position: relative;
-  height: 40%;
+  height: 60%;
   background-color: #eeeef5;
 }
 
@@ -184,21 +191,24 @@ body {
 
 #rightSide #filters #sliderContainer #ticks .tickmark {
   position: relative;
-  height: 6px;
   border-left: 1px solid black;
   width: 0;
 }
 
 #rightSide #filters #sliderContainer #ticks .tickmark p {
   position: absolute;
-  bottom: -15px;
-  left: -12px;
+  bottom: -16px;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
   font-size: 0.6vmax;
 }
 
+#rightSide #filters #sliderContainer #ticks .tickmark:not(:last-child) {
+  margin-right: calc(2.08% - 1px);
+}
+
 #rightSide #filters #timeControl {
-  height: 30%;
-  border: 1px solid purple;
+  height: 21%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -227,21 +237,22 @@ body {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  position: relative;
 }
 
 #rightSide #filters #timeControl .checkboxContainer p {
-  font-size: 1.1vmax;
+  font-size: 1vmax;
   font-weight: 400;
-  margin-top: 10px;
+  margin-top: 10%;
 }
 
 #rightSide #filters #timeControl .checkboxContainer input[type=checkbox] {
-  height: 20px;
-  width: 20px;
+  height: 18px;
+  width: 18px;
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
-  border: 3px solid white;
+  border: 2px solid white;
   background-color: white;
   border-radius: 50%;
   cursor: pointer;
@@ -256,13 +267,17 @@ body {
   background-color: #b09076;
   border-left: 3px solid black;
   border-top: 1px solid black;
+  text-align: center;
+  padding-top: 3%;
 }
 
 #rightSide #openingContainer #openingName {
-  margin-top: 3%;
   font-size: 1.5vmax;
-  text-align: center;
-  display: block;
+  text-decoration: none;
+}
+
+#rightSide #openingContainer #openingName:hover {
+  color: #323232;
 }
 
 #rightSide #openingContainer #stackedBarChart {
@@ -293,8 +308,9 @@ div.tooltip strong {
 
 .slider {
   position: absolute;
-  border: 1px solid #AAB;
-  background: #BCE;
+  border-left: 1px solid #8f745e;
+  border-right: 1px solid #8f745e;
+  background: #c7a487;
   height: 100%;
   width: 58px;
   top: 0px;
@@ -305,12 +321,7 @@ div.tooltip strong {
   position: absolute;
   height: 9px;
   width: 9px;
-  border: 1px solid #AAB;
-  background: #9AC;
-  /* Support for bootstrap */
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
+  background: #8f745e;
 }
 
 .slider .EE {

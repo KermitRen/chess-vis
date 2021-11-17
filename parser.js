@@ -29,64 +29,124 @@ async function pgnToJson(filename) {
             }
         } else if(line.startsWith("1") || line.startsWith("0")) {
             games[gameCounter]["moves"] = line;
+            cleanData(games[gameCounter]);
             gameCounter += 1;
         }
     }
-    let cleanGames = cleanData(games);
-    console.log(cleanGames.length);
-    let validCleanGames = cleanGames.filter(game => game["noOfMoves"] > 1);
+
+    console.log(games.length);
+    //let cleanGames = cleanData(games);
+    //console.log(cleanGames.length);
+    let validCleanGames = games.filter(game => game["noOfMoves"] > 1);
     console.log(validCleanGames.length);
     validCleanGames = validCleanGames.filter(game => game.Opening != "Blackburne Shilling Gambit"); 
     console.log(validCleanGames.length);
+    openingInformation = aggregateDataIntoOpenings(validCleanGames);
     saveOpenings(validCleanGames);
-    fs.writeFile(filename + ".json", JSON.stringify(validCleanGames, null, 2), 'utf8', () => {});
+    fs.writeFile(filename + "_.json", JSON.stringify(openingInformation, null, 2), 'utf8', () => {});
+    //fs.writeFile(filename + ".json", JSON.stringify(validCleanGames, null, 2), 'utf8', () => {});
 }
 
-pgnToJson("lichess2");
+pgnToJson("lichess5");
 
+function aggregateDataIntoOpenings(games) {
+    let openingInfo = {};
+    
+    for(let elo = 600; elo < 3000; elo += 50) {
+        for(let time = 1; time <= 4; time++) {
 
-function cleanData(games) {
+            let data = games.filter(game => game.Rating >= elo && game.Rating < (elo + 50) && game.TimeControl == time);
 
-    for(let i = 0; i < games.length; i++) {
-        delete games[i]["Event"];
-        delete games[i]["Site"];
-        delete games[i]["Date"];
-        delete games[i]["Round"];
-        delete games[i]["White"];
-        delete games[i]["Black"];
-        delete games[i]["UTCDate"];
-        delete games[i]["UTCTime"];
-        delete games[i]["ECO"];
-        games[i]["Rating"] = (parseInt(games[i]["WhiteElo"]) + parseInt(games[i]["BlackElo"]) ) / 2;
-        games[i]["TimeControl"] = encodeTime(games[i]["TimeControl"]);
-        games[i]["Result"] = encodeResult(games[i]["Result"]);
-        delete games[i]["WhiteElo"]
-        delete games[i]["BlackElo"]
-        delete games[i]["WhiteRatingDiff"];
-        delete games[i]["BlackRatingDiff"];
-        delete games[i]["Termination"];
-        games[i]["noOfMoves"] = lengthOfGame(games[i].moves);
-        delete games[i]["moves"];
-
-        let openingString = games[i]["Opening"].split(":");
-        let openingFamilySplit = openingString[0].split(",");
-        games[i]["Opening"] = openingFamilySplit[0].trim();
-        if( openingFamilySplit.length > 1) {
-            let familyVariation = openingFamilySplit;
-            familyVariation.shift();
-            if(typeof familyVariation != "string") {
-                familyVariation = familyVariation.join(",");
+            let openings = []
+            for (let i = 0; i < data.length; i++) {
+                let game = data[i];
+                let opening = openings.find(x => x.name == game.Opening)
+                if (opening) {
+                    whiteWin = game.Result == 0?1:0;
+                    blackWin = game.Result == 1?1:0;
+                    draw = game.Result == 2?1:0;
+                    opening.whiteWins += whiteWin;
+                    opening.blackWins += blackWin;
+                    opening.draws += draw;
+                    opening.gameLengthSum += game.noOfMoves;
+                    let existingVariation = opening.variations.find(x => x.name == game.Variation);
+                    if (existingVariation) {
+                        existingVariation.whiteWins += whiteWin;
+                        existingVariation.draws += draw;
+                        existingVariation.blackWins += blackWin;
+                        existingVariation.gameLengthSum += game.noOfMoves;
+                    } else {
+                        opening.variations.push({name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves});
+                    } 
+                } else {
+                    let whiteWin = game.Result == 0?1:0;
+                    let blackWin = game.Result == 1?1:0;
+                    let draw = game.Result == 2?1:0;
+                    let newOpening = {name: game.Opening,
+                                    whiteWins: whiteWin, 
+                                    blackWins: blackWin, 
+                                    draws: draw,
+                                    gameLengthSum: game.noOfMoves,
+                                    variations: [{name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves}]};
+                    openings.push(newOpening);
+                }
             }
-            games[i]["Variation"] = familyVariation.trim();
-        } else if(openingString.length > 1) {
-            let variationStrings = openingString[1].split(",");
-            games[i]["Variation"] = variationStrings[0].trim(); 
-        } else {
-            games[i]["Variation"] = "Main Line";
+
+            for (let i = 0; i < openings.length; i++) {
+                openings[i]["avgGameLength"] = openings[i].gameLengthSum/(openings[i].whiteWins + openings[i].blackWins + openings[i].draws);
+                delete openings[i].gameLengthSum;
+
+                variations = openings[i].variations;
+                for(let j = 0; j < variations.length; j++) {
+                    variations[j]["avgGameLength"] = variations[j].gameLengthSum/(variations[j].whiteWins + variations[j].blackWins + variations[j].draws);
+                    delete variations[j].gameLengthSum;
+                }
+            }
+            openingInfo["rating_" + elo + "_time_" + time] = openings;
         }
     }
+    return openingInfo;
+}
 
-    return games;
+function cleanData(game) {
+
+    delete game["Event"];
+    delete game["Site"];
+    delete game["Date"];
+    delete game["Round"];
+    delete game["White"];
+    delete game["Black"];
+    delete game["UTCDate"];
+    delete game["UTCTime"];
+    delete game["ECO"];
+    game["Rating"] = (parseInt(game["WhiteElo"]) + parseInt(game["BlackElo"]) ) / 2;
+    game["TimeControl"] = encodeTime(game["TimeControl"]);
+    game["Result"] = encodeResult(game["Result"]);
+    delete game["WhiteElo"]
+    delete game["BlackElo"]
+    delete game["WhiteRatingDiff"];
+    delete game["BlackRatingDiff"];
+    delete game["Termination"];
+    game["noOfMoves"] = lengthOfGame(game.moves);
+    delete game["moves"];
+
+    let openingString = game["Opening"].split(":");
+    let openingFamilySplit = openingString[0].split(",");
+    game["Opening"] = openingFamilySplit[0].trim();
+    if( openingFamilySplit.length > 1) {
+        let familyVariation = openingFamilySplit;
+        familyVariation.shift();
+        if(typeof familyVariation != "string") {
+            familyVariation = familyVariation.join(",");
+        }
+        game["Variation"] = familyVariation.trim();
+    } else if(openingString.length > 1) {
+        let variationStrings = openingString[1].split(",");
+        game["Variation"] = variationStrings[0].trim(); 
+    } else {
+        game["Variation"] = "Main Line";
+    }
+    
 }
 
 function encodeResult(result) {

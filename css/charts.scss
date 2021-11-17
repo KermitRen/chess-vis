@@ -41,6 +41,13 @@ body {
         height: 31vh;
         width: 100%;
 
+        //Remove blue highligh when double-clicking
+        -webkit-user-select: none; 
+        -moz-user-select: none;
+        -ms-user-select: none; 
+        -o-user-select: none;
+        user-select: none;
+
         .chartTitleContainer {
             display: flex;
             flex-flow: row nowrap;
@@ -48,8 +55,8 @@ body {
             justify-content: center;
             position: absolute;
             top: 2.5%;
-            left: 0;
-            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
 
             p {
                 font-size: 1vmax;
@@ -74,20 +81,22 @@ body {
     z-index: 0;
 
     #filters {
+        position: relative;
         height: 32%;
         background-color: $chessBrown4;
         border-left: 3px solid black;
-        padding: 3%;
+        padding: 3% 5%;
 
         .filterLabel {
             font-size: 1vmax;
             font-weight: 500;
-            margin-bottom: 5px;
+            margin-bottom: 1%;
+            height: 12%;
             text-transform: uppercase;
         }
 
         .filterLabel:not(:first-child) {
-            margin-top: 10px;
+            margin-top: 3%;
         }
 
         #openingSearchbar {
@@ -106,12 +115,12 @@ body {
         }
 
         #sliderContainer {
-            border: 1px solid red;
-            height: 20%;
+            height: 16%;
+
             #eloSlider {
                 border: 1px solid black;
                 position: relative;
-                height:40%;
+                height:60%;
                 background-color: #eeeef5;
             }
 
@@ -121,16 +130,19 @@ body {
 
                 .tickmark {
                     position: relative;
-                    height: 6px;
                     border-left: 1px solid black;
                     width: 0;
 
                     p {
                         position: absolute;
-                        bottom: -15px;
-                        left: -12px;
+                        bottom: -16px;
+                        transform: translateX(-50%);
                         font-size: 0.6vmax;
                     }
+                }
+
+                .tickmark:not(:last-child) {
+                    margin-right: calc(2.08% - 1px);
                 }
 
             }
@@ -138,8 +150,7 @@ body {
         }
 
         #timeControl {
-            height: 30%;
-            border: 1px solid purple;
+            height: 21%;
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-around;
@@ -150,18 +161,19 @@ body {
                 flex-flow: column nowrap;
                 justify-content: space-between;
                 align-items: center;
+                position: relative;
 
                 p {
-                    font-size: 1.1vmax;
+                    font-size: 1vmax;
                     font-weight: 400;
-                    margin-top: 10px;
+                    margin-top: 10%;
                 }
 
                 input[type=checkbox] {
-                    height: 20px;
-                    width: 20px;
+                    height: 18px;
+                    width: 18px;
                     appearance: none;
-                    border: 3px solid white;
+                    border: 2px solid white;
                     background-color: white;
                     border-radius: 50%;
                     cursor: pointer;
@@ -179,12 +191,16 @@ body {
         background-color: $chessBrown2;
         border-left: 3px solid black;
         border-top: 1px solid black;
+        text-align: center;
+        padding-top: 3%;
 
         #openingName {
-            margin-top: 3%;
             font-size: 1.5vmax;
-            text-align: center;
-            display: block;
+            text-decoration: none;
+
+            &:hover {
+                color: rgba(50,50,50,1);
+            }
         }
 
         #stackedBarChart {
@@ -217,26 +233,20 @@ div.tooltip {
 
 .slider {
     position: absolute;
-    border: 1px solid #AAB;
-    background: #BCE;
+    border-left: 1px solid $chessBrown3;
+    border-right: 1px solid $chessBrown3;
+    background: $chessBrown1;
     height: 100%;
     width: 58px;
     top: 0px;
     cursor: move;
-    //margin:-0.5px;
 }
 
 .slider .handle {
     position: absolute;
     height: 9px;
     width: 9px;
-    border: 1px solid #AAB;
-    background: #9AC;
-
-    /* Support for bootstrap */
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
+    background: $chessBrown3;
 }
 
 .slider .EE {

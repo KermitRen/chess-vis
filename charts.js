@@ -1,18 +1,20 @@
 document.addEventListener("DOMContentLoaded", pageLoaded());
 
 let lichessData = [];
-let openings = [];
+let openings = {};
 let curr_aggregatedData = [];
 var eloSlider;
 
 function pageLoaded() {
-    fetch("data/lichess.json")
+    fetch("data/lichess_.json")
     .then(response => response.json())
     .then(data => {lichessData = data})
     .then(_ => {setupSearchbar();setupSlider();reload()})
 }
 
 function setupSlider() {
+
+    //Setup Slider
     var slider = createD3RangeSlider(600, 3000, "#eloSlider");
     eloSlider = slider; 
     slider.onChange(function(range) {
@@ -21,11 +23,34 @@ function setupSlider() {
     })
     slider.range(1000,2000);
     slider.onTouchEnd(function(){reload()});
+
+    //Add Tickmarks
+    let labeledMarks = [600, 1000, 1500, 2000, 2500, 3000];
+    let markContainer = document.getElementById("ticks");
+    for(let i = 600; i <= 3000; i += 50) {
+
+        let makeLabel = labeledMarks.includes(i);
+
+        let tickmark = document.createElement("div");
+        tickmark.className = "tickmark";
+        tickmark.style.height = makeLabel ? "6px" : "3px";
+        markContainer.appendChild(tickmark);
+
+        if(makeLabel) {
+            let label = document.createElement("p");
+            label.innerHTML = i;
+            tickmark.appendChild(label);
+        }
+
+    }
 }
 
 async function setupSearchbar() {
-    let openingNames = await getOpenings();
-    openings = openingNames;
+
+    const response = await fetch("data/openingsMap.json");
+    openings = await response.json();
+
+    let openingNames = Object.keys(openings);
     let datalist = document.getElementById("openingNames");
 
     for(let i = 0; i < openingNames.length; i++) {
@@ -36,10 +61,10 @@ async function setupSearchbar() {
 }
 
 function gatherData() {
-    let filteredData = applyFilters(lichessData);
-    let aggregatedData = aggregateData(filteredData);
-    curr_aggregatedData = aggregatedData;
-    let aggregatedData2 = addPotentialVariations(aggregatedData);
+    let lichessDataCopy = JSON.parse(JSON.stringify(lichessData)); //Could perhaps be optimized
+    let filteredData = applyFilters(lichessDataCopy);
+    curr_aggregatedData = filteredData;
+    let aggregatedData2 = addPotentialVariations(filteredData);
     return removeInsignificantOpenings(aggregatedData2);
 }
 
@@ -50,13 +75,17 @@ function reload() {
 
 //TODO
 /*
-- Clean up barchart  også threshhold
 - Final chart for each opening?
-- (Evt. clickable link til opening i chess.com/lichess)
-- hover highlight
-- fjern tital bar i hvert bee plot
+- Clean up barchart  også threshhold
 - ledger til bar chart, plus sorteringsfunktion
 - sorter barchart efter farven på den circle man klikker på
+- transitions?
+*/
+
+//Special TODO:
+/*
+- change gitIgnore
+- Setup github pages
 */
 
 function drawCharts(cleanData) {
@@ -110,6 +139,25 @@ function drawCharts(cleanData) {
         chartHelp: "This chart shows what the average number of moves is for each opening",
         valueUnit: "Moves"
     })
+
+    //Stacked Bar Chart
+    let stackedBarchartContainer = document.getElementById("stackedBarChart");
+    while (stackedBarchartContainer.firstChild != null) {
+        stackedBarchartContainer.removeChild(stackedBarchartContainer.lastChild);
+    }
+
+    if(document.getElementById("openingName").innerHTML != "") {
+        let opening = cleanData.find(x => x.name == document.getElementById("openingName").innerHTML);
+        if(opening) {
+            variationsStackedBarChart(opening, {
+                variations: d => d.name,
+                whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
+                blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
+                drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
+                chartContainerID: "stackedBarChart"
+            });
+        }
+    }
 }
 
 function showcaseOpening(opening) {
@@ -125,29 +173,13 @@ function showcaseOpening(opening) {
         document.getElementById("openingName").innerHTML = "";
     } else {
         document.getElementById("openingName").innerHTML = opening.name;
-        //document.getElementById("openingName").href = "https://dr.dk";//ide med links
+        document.getElementById("openingName").href = openings[opening.name];
     }
 
     //Add Variations
     let aggregatedData = addPotentialVariations(curr_aggregatedData);
     let cleanData = removeInsignificantOpenings(aggregatedData);
     drawCharts(cleanData);
-
-    //Stacked Bar Chart
-    let chartContainer = document.getElementById("stackedBarChart");
-    while (chartContainer.firstChild != null) {
-      chartContainer.removeChild(chartContainer.lastChild);
-    }
-
-    if(document.getElementById("openingName").innerHTML != "") {
-        variationsStackedBarChart(opening, {
-            variations: d => d.name,
-            whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
-            blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
-            drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
-            chartContainerID: "stackedBarChart"
-        });
-    }
 }
 
 function removeInsignificantOpenings(data) {
@@ -161,7 +193,7 @@ function removeInsignificantOpenings(data) {
 }
 
 function applyFilters(data) {
-    
+
     //Elo Filter
     let eloRange = eloSlider.range(null,null);
 
@@ -172,7 +204,49 @@ function applyFilters(data) {
     if(document.getElementById("rapidCheckbox").checked) {timeControls.push(3)};
     if(document.getElementById("classicalCheckbox").checked) {timeControls.push(4)};
 
-    return data.filter(game => timeControls.includes(game.TimeControl) && game.Rating > eloRange.begin && game.Rating < eloRange.end);
+    //Combine Filters
+    let openings = [];
+
+    for(let time = 1; time <= 4; time++) {
+        if(timeControls.includes(time)) {
+            for(let elo = eloRange.begin; elo < eloRange.end; elo += 50) {
+                let filterString = "rating_" + elo + "_time_" + time;
+                let filterData = data[filterString];
+
+                for(let i = 0; i < filterData.length; i++) {
+                    let curr_opening = filterData[i];
+                    let opening = openings.find(x => x.name == curr_opening.name);
+                    if(opening) {
+                        let noOfOldGames = (opening.whiteWins+opening.blackWins+opening.draws);
+                        opening.whiteWins += curr_opening.whiteWins;
+                        opening.blackWins += curr_opening.blackWins;
+                        opening.draws += curr_opening.draws;
+                        let noOfNewGames = (opening.whiteWins+opening.blackWins+opening.draws);
+                        opening.avgGameLength = (noOfOldGames/noOfNewGames)*opening.avgGameLength + (1-(noOfOldGames/noOfNewGames))*curr_opening.avgGameLength;
+                        
+                        let curr_variations = curr_opening.variations;
+                        for(let j = 0; j <curr_variations.length; j++) {
+                            let variation = opening.variations.find(x => x.name == curr_variations[j].name);
+                            if(variation) {
+                                let noOfOldGames = (variation.whiteWins+variation.blackWins+variation.draws);
+                                variation.whiteWins += curr_variations[j].whiteWins;
+                                variation.blackWins += curr_variations[j].blackWins;
+                                variation.draws += curr_variations[j].draws;
+                                let noOfNewGames = (variation.whiteWins+variation.blackWins+variation.draws);
+                                variation.avgGameLength = (noOfOldGames/noOfNewGames)*variation.avgGameLength + (1-(noOfOldGames/noOfNewGames))*curr_variations[j].avgGameLength;
+                            } else {
+                                opening.variations.push(curr_variations[j]);
+                            }
+                        }
+                    } else {    
+                        openings.push(filterData[i]);
+                    }
+                }
+                
+            }
+        }
+    }
+    return openings;
 }
 
 function addPotentialVariations(data) {
@@ -186,63 +260,13 @@ function addPotentialVariations(data) {
     let opening = openingsE.find(opening => opening.name == openingName);
     if(opening) {
         for(let i = 0; i < opening.variations.length; i++) {
-            let variation = opening.variations[i];
+            let variation = JSON.parse(JSON.stringify(opening.variations[i]));
             variation.name = opening.name + ": " + variation.name;
             openingsE.push(variation);
         }
     }  
 
     return openingsE;
-}
-
-function aggregateData(data) {
-    let openings = []
-
-    for (let i = 0; i < data.length; i++) {
-        let game = data[i];
-        let opening = openings.find(x => x.name == game.Opening)
-        if (opening) {
-            whiteWin = game.Result == 0?1:0;
-            blackWin = game.Result == 1?1:0;
-            draw = game.Result == 2?1:0;
-            opening.whiteWins += whiteWin;
-            opening.blackWins += blackWin;
-            opening.draws += draw;
-            opening.gameLengthSum += game.noOfMoves;
-            let existingVariation = opening.variations.find(x => x.name == game.Variation);
-            if (existingVariation) {
-                existingVariation.whiteWins += whiteWin;
-                existingVariation.draws += draw;
-                existingVariation.blackWins += blackWin;
-                existingVariation.gameLengthSum += game.noOfMoves;
-            } else {
-                opening.variations.push({name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves});
-            } 
-        } else {
-            let whiteWin = game.Result == 0?1:0;
-            let blackWin = game.Result == 1?1:0;
-            let draw = game.Result == 2?1:0;
-            let newOpening = {name: game.Opening,
-                             whiteWins: whiteWin, 
-                             blackWins: blackWin, 
-                             draws: draw,
-                             gameLengthSum: game.noOfMoves,
-                             variations: [{name: game.Variation, whiteWins: whiteWin, draws: draw, blackWins: blackWin, gameLengthSum: game.noOfMoves}]};
-            openings.push(newOpening);
-        }
-    }
-
-    for (let i = 0; i < openings.length; i++) {
-        openings[i]["avgGameLength"] = openings[i].gameLengthSum/(openings[i].whiteWins + openings[i].blackWins + openings[i].draws);
-        delete openings[i].gameLengthSum;
-
-        variations = openings[i].variations;
-        for(let j = 0; j < variations.length; j++) {
-            variations[j]["avgGameLength"] = variations[j].gameLengthSum/(variations[j].whiteWins + variations[j].blackWins + variations[j].draws);
-            delete variations[j].gameLengthSum;
-        }
-    }
-    return openings
 }
 
 function countGames(openings) {
@@ -280,15 +304,9 @@ function numberWithCommas(x) {
     return x.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 }
 
-async function getOpenings() {
-    const response = await fetch("data/openings.json");
-    let openings = await response.json();
-    return openings;
-}
-
 function searchOpening() {
     let openingName = document.getElementById("openingSearchbar").value; 
-    if(openings.includes(openingName)) {
+    if(openings.hasOwnProperty(openingName)) {
         let opening = curr_aggregatedData.find(x => x.name == openingName);
         if(opening != null) {
             document.getElementById("openingSearchbar").value = "";
