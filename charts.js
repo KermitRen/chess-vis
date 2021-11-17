@@ -80,14 +80,16 @@ function reload() {
 
 //TODO
 /*
-- Final chart for each opening?
-- Clean up barchart  også threshhold
-- ledger til bar chart, plus sorteringsfunktion
-- sorter barchart efter farven på den circle man klikker på
-- transitions?
+- Create parallel coordinates chart
+- Clean up barchart
+    - ledger til bar chart, plus sorteringsfunktion
+    - sorter barchart efter farven på den circle man klikker på
+- transitions? (Hackathon)
 - deselect by cliking nothing
+- add icon to link (screen share icon)
 - Fix: too long leaderline
 - Fix: Slider escaping from mouse
+- Fix: double click highlighting in filters & title
 */
 
 function drawCharts(cleanData) {
