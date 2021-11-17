@@ -8,7 +8,7 @@ function variationsStackedBarChart(data, {
 
 } = {}) {
 
-  const variationArray = data.variations;
+  const variationArray = removeInsignificantOpenings(data.variations);
   const varName = d3.map(variationArray, variations);
   const winWhite = d3.map(variationArray, whiteperc);
   const winBlack = d3.map(variationArray, blackperc);

@@ -264,3 +264,31 @@ div.tooltip {
     margin-top: -4px;
 }
 
+#logCheckboxContainer {
+    position: absolute;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    z-index: 4;
+    right: 10px;
+    top: 10px;
+
+    p {
+        margin-right: 5px;
+        font-size: 0.9vmax;
+    }
+
+    input[type=checkbox] {
+        height: 18px;
+        width: 18px;
+        appearance: none;
+        border: 2px solid white;
+        background-color: white;
+        border-radius: 30%;
+        cursor: pointer;
+    
+        &:checked {
+            background-color: $chessBrown3;
+        }
+    }
+}

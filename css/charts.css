@@ -338,4 +338,42 @@ div.tooltip strong {
   top: 50%;
   margin-top: -4px;
 }
+
+#logCheckboxContainer {
+  position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  z-index: 4;
+  right: 10px;
+  top: 10px;
+}
+
+#logCheckboxContainer p {
+  margin-right: 5px;
+  font-size: 0.9vmax;
+}
+
+#logCheckboxContainer input[type=checkbox] {
+  height: 18px;
+  width: 18px;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  border: 2px solid white;
+  background-color: white;
+  border-radius: 30%;
+  cursor: pointer;
+}
+
+#logCheckboxContainer input[type=checkbox]:checked {
+  background-color: #8f745e;
+}
 /*# sourceMappingURL=charts.css.map */

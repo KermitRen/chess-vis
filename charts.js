@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", pageLoaded());
 
+window.addEventListener('resize', function () { 
+    "use strict";
+    window.location.reload(); 
+});
+
 let lichessData = [];
 let openings = {};
 let curr_aggregatedData = [];
@@ -85,16 +90,18 @@ function reload() {
 - Fix: Slider escaping from mouse
 */
 
-//Special TODO:
-// Setup github pages
-
 function drawCharts(cleanData) {
 
     //Remove all charts
     for (let i=0; i<3;i++) {
         chartContainer = document.getElementById("beeswarm"+(i+1)+"Container");
-        while (chartContainer.firstChild != null) {
+        /*while (chartContainer.firstChild != null) {
             chartContainer.removeChild(chartContainer.lastChild);
+        }*/
+        for (let j = chartContainer.children.length - 1; j >= 0; j--) {
+            if(chartContainer.children[j].id != "logCheckboxContainer") {
+                chartContainer.removeChild(chartContainer.children[j]);
+            }
         }
     }
 
@@ -125,7 +132,7 @@ function drawCharts(cleanData) {
         xLabel: "Popularity",
         chartHelp: "This chart shows what percentage of games correponds to each opening on a logarithmic scale",
         valueUnit: "% of games",
-        logScale: true
+        logScale: document.getElementById("logCheckbox").checked
     })
 
     //Gamelength Chart
