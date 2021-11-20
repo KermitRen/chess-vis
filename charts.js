@@ -87,6 +87,8 @@ function reload() {
 - Show no of games per opening 
 - Checkbox for hover tool 
 - Clean up parallel coordinated (maybe interation)
+- Fix: Height of slider for small screen
+- clean up opening container
 */
 
 function drawCharts(cleanData) {
@@ -126,7 +128,7 @@ function drawCharts(cleanData) {
         outline: outliningPoints,
         containerID: "beeswarm2Container",
         xLabel: "Popularity",
-        chartHelp: "This chart shows what percentage of games correponds to each opening on a logarithmic scale",
+        chartHelp: "This chart shows what percentage of games correponds to each opening" + (document.getElementById("logCheckbox").checked ? " on a logarithmic scale" : ""),
         valueUnit: "% of games",
         logScale: document.getElementById("logCheckbox").checked
     })
@@ -138,7 +140,7 @@ function drawCharts(cleanData) {
         color: coloringPoints,
         outline: outliningPoints,
         containerID: "beeswarm3Container",
-        xLabel: "Average Gamelength",
+        xLabel: "Average no. of moves",
         chartHelp: "This chart shows what the average number of moves is for each opening",
         valueUnit: "Moves"
     })
