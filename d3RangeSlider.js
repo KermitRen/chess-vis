@@ -88,6 +88,7 @@
 
         let interval = (rangeMax-rangeMin)
         let currentVal = (interval * x)/totalSliderSize + rangeMin;
+        currentVal = Math.min(currentVal, rangeMax);
         let bestSnapVal = Math.round(currentVal/snapInterval)*snapInterval;
         return ((totalSliderSize * (bestSnapVal-rangeMin))/interval);
     }
@@ -169,12 +170,12 @@
             var oldWidth = parseFloat(slider.style("width"));
             var newLeft = findNearestSnap(oldLeft + dx);
             newLeft = Math.max(newLeft, 0);
-            if(((rangeMax-rangeMin) * (oldLeft+dx+oldWidth))/totalSliderSize + rangeMin <= rangeMax) {
-                if(Math.floor(oldLeft) != Math.floor(newLeft)) {
-                    lastKnownX = event.x;
-                    slider.style("left", newLeft + "px");
-                }   
-            }
+            newLeft = Math.min(newLeft, totalSliderSize-oldWidth);
+            
+            if(Math.floor(oldLeft) != Math.floor(newLeft)) {
+                lastKnownX += newLeft-oldLeft;
+                slider.style("left", newLeft + "px");
+            }   
             
             updateRangeFromUI();
         });

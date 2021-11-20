@@ -59,9 +59,24 @@
             </div>
         </div>
         <div id = "openingContainer">
-            <a id="openingName" target="_blank"></a>
-            <div id = "stackedBarChart"></div>
-            <div id = "stackedAreaChart"></div>
+            <div id="openingNameContainer">
+                <a id="openingName" target="_blank"></a>
+                <a id="linkIcon" class="material-icons" target="_blank">screen_share</a>
+            </div>
+            <hr class="legendHR">
+            <div id="legendContainer">
+                <p id="legendV">Variation</p>
+                <p id="legendG">Games</p>
+                <p id="legendW">White</p>
+                <p id="legendD">Draw</p>
+                <p id="legendB">Black</p>
+            </div>
+            <hr class="legendHR">
+            <div id = "stackedBarChart">
+                <div id="variationLabelContainer"></div>
+                <div id="svgContainer"></div>
+            </div>
+            <div id = "parallelCoordinatesChart"></div>
         </div>
     </div>
 </body>

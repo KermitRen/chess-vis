@@ -42,6 +42,11 @@ body {
 
 #leftSide {
   width: 70%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 #leftSide #titleContainer {
@@ -127,6 +132,11 @@ body {
   background-color: #735e4d;
   border-left: 3px solid black;
   padding: 3% 5%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 #rightSide #filters .filterLabel {
@@ -271,19 +281,182 @@ body {
   padding-top: 3%;
 }
 
-#rightSide #openingContainer #openingName {
-  font-size: 1.5vmax;
-  text-decoration: none;
+#rightSide #openingContainer #openingNameContainer {
+  display: none;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  cursor: pointer;
+  margin-bottom: 2%;
 }
 
-#rightSide #openingContainer #openingName:hover {
+#rightSide #openingContainer #openingNameContainer:hover #openingName {
   color: #323232;
 }
 
+#rightSide #openingContainer #openingNameContainer:hover #linkIcon {
+  color: #323232;
+}
+
+#rightSide #openingContainer #openingNameContainer #openingName {
+  font-size: 1.5vmax;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#rightSide #openingContainer #openingNameContainer #linkIcon {
+  font-size: 1.8vmax;
+  text-decoration: none;
+  margin-left: 2%;
+}
+
+#rightSide #openingContainer hr {
+  width: 90%;
+  background-color: black;
+  border: none;
+  height: 1px;
+  margin: auto;
+}
+
+#rightSide #openingContainer #legendContainer {
+  width: 90%;
+  margin: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-top: 1%;
+  margin-bottom: 1%;
+}
+
+#rightSide #openingContainer #legendContainer p {
+  font-size: 0.9vmax;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #b09076;
+}
+
+#rightSide #openingContainer #legendContainer p:hover {
+  -webkit-filter: brightness(90%);
+          filter: brightness(90%);
+}
+
+#rightSide #openingContainer #legendContainer #legendV {
+  width: 42%;
+  text-align: left;
+  padding-left: 5px;
+}
+
+#rightSide #openingContainer #legendContainer #legendG {
+  width: 18%;
+  text-align: right;
+  padding-right: 5px;
+  border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#rightSide #openingContainer #legendContainer #legendW, #rightSide #openingContainer #legendContainer #legendD, #rightSide #openingContainer #legendContainer #legendB {
+  width: 13.33%;
+  text-align: center;
+}
+
 #rightSide #openingContainer #stackedBarChart {
-  width: 100%;
-  height: 300px;
-  border: 1px solid red;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  margin: auto;
+  width: 90%;
+  height: 40%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#rightSide #openingContainer #stackedBarChart #variationLabelContainer {
+  width: 60%;
+  height: 100%;
+  cursor: text;
+}
+
+#rightSide #openingContainer #stackedBarChart #variationLabelContainer .variationInfo {
+  border-right: 1px solid black;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-flow: row nowrap;
+          flex-flow: row nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  cursor: text;
+  background-color: #b09076;
+}
+
+#rightSide #openingContainer #stackedBarChart #variationLabelContainer .variationInfo .nameInfo {
+  width: 70%;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 5px;
+  cursor: text;
+}
+
+#rightSide #openingContainer #stackedBarChart #variationLabelContainer .variationInfo .gamesInfo {
+  text-align: right;
+  padding-right: 5px;
+  width: 30%;
+  cursor: text;
+}
+
+#rightSide #openingContainer #stackedBarChart #variationLabelContainer .variationInfo:nth-child(even) {
+  -webkit-filter: brightness(92%);
+          filter: brightness(92%);
+}
+
+#rightSide #openingContainer #stackedBarChart #svgContainer {
+  width: 40%;
+  height: 100%;
+}
+
+#rightSide #openingContainer #stackedBarChart #svgContainer .barLabel {
+  cursor: default;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#rightSide #openingContainer #stackedBarChart::-webkit-scrollbar {
+  display: none;
+}
+
+#rightSide #openingContainer #parallelCoordinatesChart {
+  width: 90%;
+  height: 45%;
+  margin: auto;
 }
 
 div.tooltip {

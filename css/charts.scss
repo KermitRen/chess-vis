@@ -11,6 +11,13 @@ body {
 #leftSide {
     width: 70%;
 
+    //Remove blue highligh when double-clicking
+    -webkit-user-select: none; 
+    -moz-user-select: none;
+    -ms-user-select: none; 
+    -o-user-select: none;
+    user-select: none;
+
     #titleContainer {
         height: 7vh;
         background-color: $chessBrown3;
@@ -86,6 +93,13 @@ body {
         background-color: $chessBrown4;
         border-left: 3px solid black;
         padding: 3% 5%;
+
+        //Remove blue highligh when double-clicking
+        -webkit-user-select: none; 
+        -moz-user-select: none;
+        -ms-user-select: none; 
+        -o-user-select: none;
+        user-select: none;
 
         .filterLabel {
             font-size: 1vmax;
@@ -194,19 +208,155 @@ body {
         text-align: center;
         padding-top: 3%;
 
-        #openingName {
-            font-size: 1.5vmax;
-            text-decoration: none;
+        #openingNameContainer {
+            display: none;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 2%;
 
-            &:hover {
+            &:hover #openingName{
                 color: rgba(50,50,50,1);
+            }
+
+            &:hover #linkIcon{
+                color: rgba(50,50,50,1);
+            }
+
+            #openingName {
+                font-size: 1.5vmax;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+            #linkIcon{
+                font-size: 1.8vmax;
+                text-decoration: none;
+                margin-left: 2%;
+            }
+
+        }
+
+        hr {
+            width: 90%;
+            background-color: black;
+            border: none;
+            height: 1px;
+            margin: auto;
+        }
+        
+        #legendContainer {
+            width: 90%;
+            margin: auto;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 1%;
+            margin-bottom: 1%;
+
+            p {
+                font-size: 0.9vmax;
+                font-weight: 500;
+                cursor: pointer;
+                background-color: $chessBrown2;
+
+                &:hover {
+                    filter: brightness(90%);
+                }
+            }
+
+            #legendV {
+                width: 42%;
+                text-align: left;
+                padding-left: 5px;
+            }
+
+            #legendG {
+                width: 18%;
+                text-align: right;
+                padding-right: 5px;
+                border-right: 1px solid rgba(0,0,0,0.5);
+            }
+
+            #legendW, #legendD, #legendB {
+                width: 13.33%;
+                text-align: center;
             }
         }
 
         #stackedBarChart {
-            width: 100%;
-            height: 300px;
-            border: 1px solid red;
+            display: flex;
+            flex-flow: row nowrap;
+            margin: auto;
+            width: 90%;
+            height: 40%;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            #variationLabelContainer {
+                width: 60%;
+                height: 100%;
+                cursor: text;
+
+                .variationInfo {
+                    border-right: 1px solid black;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    align-items: center;
+                    justify-content: space-between;
+                    cursor: text;
+                    background-color: $chessBrown2;
+
+                    .nameInfo {
+                        width: 70%;
+                        text-align: left;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        padding-left: 5px;
+                        cursor: text;
+                    }
+
+                    .gamesInfo {
+                        text-align: right;
+                        padding-right: 5px;
+                        width: 30%;
+                        cursor: text;
+                    }
+                }
+
+                .variationInfo:nth-child(even) {
+                    filter: brightness(92%);
+                }
+            }
+
+            #svgContainer {
+                width: 40%;
+                height: 100%;
+
+                .barLabel {
+                    cursor: default;
+                    text-anchor: middle;
+
+                    //Remove blue highligh when double-clicking
+                    -webkit-user-select: none; 
+                    -moz-user-select: none;
+                    -ms-user-select: none; 
+                    -o-user-select: none;
+                    user-select: none;
+                } 
+            }
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        #parallelCoordinatesChart {
+            width: 90%;
+            height: 45%;
+            margin: auto;
         }
     }
 }

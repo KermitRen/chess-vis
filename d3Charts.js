@@ -1,49 +1,81 @@
-function variationsStackedBarChart(data, { 
-  margin = {top: 25, right: 20, bottom: 10, left: 270},
-  chartContainerID,
-  variations = d => d,
-  whiteperc = d => d,
-  blackperc = d => d,
-  drawperc = d => d,
+function variationsStackedBarChart(data, sortBy = "") {
 
-} = {}) {
+  //Variables
+  var chartContainerID =  "svgContainer"
+  let opening = data.find(x => x.name == document.getElementById("openingName").innerHTML);
+  let variations = data.filter(opening => !opening.hasOwnProperty("variations"));
+  //let totalNoOfGames = variations.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
 
-  const variationArray = removeInsignificantOpenings(data.variations);
-  const varName = d3.map(variationArray, variations);
-  const winWhite = d3.map(variationArray, whiteperc);
-  const winBlack = d3.map(variationArray, blackperc);
-  const winDraw = d3.map(variationArray, drawperc);
+  var width = document.getElementById(chartContainerID).getBoundingClientRect().width;
+  var barHeight = document.getElementById(chartContainerID).getBoundingClientRect().height/12;
+  var barGap = 3;
+  var height = variations.length*(barHeight + barGap);
 
-  //Calculate size
-  width = document.getElementById(chartContainerID).getBoundingClientRect().width;
-  height = document.getElementById(chartContainerID).getBoundingClientRect().height;
+  //Reset Chart
+  showLegend(false, data);
+
+  let containerLeft = document.getElementById("variationLabelContainer");
+  while(containerLeft.firstChild) {
+    containerLeft.removeChild(containerLeft.lastChild);
+  }
+
+  let containerRight = document.getElementById("svgContainer");
+  while(containerRight.firstChild) {
+    containerRight.removeChild(containerRight.lastChild);
+  }
+
+  //Check if opening has games
+  if(opening) {
+    showLegend(true, data);
+  } else {
+    return;
+  }
+
+  //Map to data we want
+  const N = d3.map(variations, v => v.name.slice(opening.name.length + 2));
+  const G = d3.map(variations, v => v.whiteWins + v.blackWins + v.draws);
+  const W = d3.map(variations, v => 100*v.whiteWins/(v.whiteWins + v.blackWins + v.draws));
+  const B = d3.map(variations, v => 100*v.blackWins/(v.whiteWins + v.blackWins + v.draws));
+  const D = d3.map(variations, v => 100*v.draws/(v.whiteWins + v.blackWins + v.draws));
 
   //Create object to make it easy to stack
-  variationsObject = []
-  for(let i = 0; i < variationArray.length; i++) {
-    variationsObject.push({Variation: varName[i], White: winWhite[i], Draw: winDraw[i], Black: winBlack[i]})
+  let variationBars = []
+  for(let i = 0; i < variations.length; i++) {
+    variationBars.push({name: N[i], games: G[i], white: W[i], draw: D[i], black: B[i]});
   }
 
   //Sort variations
-  variationsObject = sortVariationData(variationsObject, "White")
-  function sortVariationData(variationsObject, sortingParameter) {
-    switch (sortingParameter) {
-      case "White": 
-        variationsObject.sort(function(a, b) { return b.White - a.White});
-        return variationsObject
-      case "Black": 
-        variationsObject.sort(function(a, b) { return b.Black - a.Black});
-        return variationsObject
-      case "Draw": 
-        variationsObject.sort(function(a, b) { return b.Draw - a.Draw});
-        return variationsObject
-    }
+  let sortingParameter = "";
+  if(sortBy == "") {
+    sortingParameter = opening.whiteWins > opening.blackWins ? "White" : "Black";
+  } else {
+    sortingParameter = sortBy;
   }
+  variationBars = sortVariations(variationBars, sortingParameter);
 
-  //Slice variations to only show the 10 highest (on sorting)
-  variationsObject = variationsObject.slice(0,10);
-  var groups = variationsObject.map(v=>v.Variation);
-  var subgroups = ["White", "Draw", "Black"];
+  //Labels
+  let labelContainer = document.getElementById("variationLabelContainer");
+  for(let i = 0; i < variationBars.length; i++) {
+    let variationInfoContainer = document.createElement("div");
+    variationInfoContainer.style.height = barHeight + "px";
+    variationInfoContainer.style.marginBottom = barGap + "px";
+
+    variationInfoContainer.className = "variationInfo";
+
+    let variationName = document.createElement("p");
+    variationName.innerHTML = variationBars[i].name;
+    variationName.className = "nameInfo";
+    variationName.style.fontSize = (barHeight*0.8) + "px";
+    variationInfoContainer.appendChild(variationName);
+
+    let variationGames = document.createElement("p");
+    variationGames.innerHTML = variationBars[i].games;
+    variationGames.className = "gamesInfo";
+    variationGames.style.fontSize = (barHeight*0.8) + "px";
+    variationInfoContainer.appendChild(variationGames);
+
+    labelContainer.appendChild(variationInfoContainer);
+  }
 
   //Chart
   var svgBarChart = d3.select("#" + chartContainerID)
@@ -54,33 +86,21 @@ function variationsStackedBarChart(data, {
   //x-axis
   x = d3.scaleLinear()
     .domain([0, 100])
-    .range([margin.left, width - margin.right]);
-
-  svgBarChart.append("g")
-    .attr("transform", `translate(0,${margin.top})`)
-    .call(d3.axisTop(x).ticks(3));
-    
-  //y-axis
-  y = d3.scaleBand()
-  .domain(groups)
-  .range([margin.top, margin.top + (25*groups.length)]) //(height - margin.bottom)
-  .padding(0.1);
-
-  svgBarChart.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .attr('fill', 'black')
-    .style("fill", "#999999")
-    .call(d3.axisLeft(y).tickSizeOuter(0));
+    .range([0, width]);
 
   // color palette = one color per subgroup
   var color = d3.scaleOrdinal()
-    .domain(subgroups)
-    .range(['White', 'Gray', 'Black']);//'#F6BD60','#F5CAC3','#84a59d'])
+    .domain(["white", "draw", "black"])
+    .range(['White', 'Gray', 'Black']);
+
+  var labelColors = d3.scaleOrdinal()
+    .domain(["white", "draw", "black"])
+    .range(['Black', 'White', 'White']);
   
   //stack the data? --> stack per subgroup
   var stackedData = d3.stack()
-   .keys(subgroups)
-   (variationsObject)
+   .keys(["white", "draw", "black"])
+   (variationBars)
 
   // Show the bars
   svgBarChart.append("g")
@@ -93,30 +113,27 @@ function variationsStackedBarChart(data, {
     // enter a second time = loop subgroup per subgroup to add all rectangles
     .data(d => d)
     .enter().append("rect")
-    .attr("x", d => x(d[0]) + 1)
-    .attr("y", (d, i) => y(d.data.Variation))
+    .attr("x", d => x(d[0]))
+    .attr("y", (_, i) =>(i*(barHeight+barGap)))
     .attr("width", d => x(d[1]) - x(d[0]))
-    .attr("height", 22)//y.bandwidth())
-    // .append("text")
-    // .attr("class","label")
-    // .attr("x", (function(d) { return x(d.date); }  ))
-    // .attr("y", function(d) { return y(d.value) - 20; })
-    // .attr("dy", ".75em")
-    // .text(d => d[1]);
+    .attr("height", barHeight)
+  
+  // Make Labels
+  svgBarChart.append("g")
+  .selectAll("g")
+  .data(stackedData)
+  .enter().append("g")
+    .style("fill", d => labelColors(d.key))
+    .selectAll("text")
+    .data(d => d)
+    .enter().append("text")
+    .style("font-size", (barHeight*0.65) + "px")
+    .attr("class", "barLabel")
+    .attr("x", d => (x(d[1])-x(d[0]))/2 + x(d[0]))
+    .attr("y", (_, i) =>(i*(barHeight+barGap))+(barHeight*0.25))
+    .attr("dy", ".75em")
+    .text(d => {return (d[1]-d[0] > 15 ? Math.round(d[1]-d[0]) + "%" : "")});
 
-
-  // //Add labels to bars
-  // svgBarChart.selectAll(".text")        
-  // .data(stackedData)
-  // .enter()
-  // .append("text")
-  // .attr("class","label")
-  // .attr("x", (function(d) { return x(d.date); }  ))
-  // .attr("y", function(d) { return y(d.value) - 20; })
-  // .attr("dy", ".75em")
-  // .text(function(d) { return d.value; });
-
-  return svgBarChart.node();
 }
 
 
@@ -132,6 +149,7 @@ function BeeswarmChart(data, {
   marginRight = 20, 
   marginBottom = 35, 
   marginLeft = 20, 
+  border = 3,
   width = document.getElementById(containerID).getBoundingClientRect().width,
   height = document.getElementById(containerID).getBoundingClientRect().height,
   radius = height/50,
@@ -275,6 +293,91 @@ function BeeswarmChart(data, {
 
   }
 
+  //Highlight lines (1 for top beeplot, 2 for middle, 1 for bottom)
+  svg.append('line')
+    .attr("class", "line1")
+    .style("stroke", "black")
+    .style("stroke-width", 1);
+  
+  svg.append('line')
+    .attr("class", "line2")
+    .style("stroke", "black")
+    .style("stroke-width", 1);
+  
+  svg.append('line')
+    .attr("class", "line3")
+    .style("stroke", "black")
+    .style("stroke-width", 1);
+
+  svg.append('line')
+    .attr("class", "line4")
+    .style("stroke", "black")
+    .style("stroke-width", 1);
+
+  // On hover Highlight
+  dots.on("mouseover", function(event, i) {
+    var topCircleCoordinates;
+    var middleCircleCoordinates;
+    var bottomCircleCoordinates;
+    let bigRadius = height/30;
+    let newOpacity = 1;
+    for(let j = 0; j < 3; j++) {
+      beeswarmContainerID = "beeswarm" + (j + 1) + "Container";
+      let svg = d3.select("#" + beeswarmContainerID + " svg");
+      hoveredCircle = svg.selectAll("circle")
+        .filter(k => k === i)
+        .attr("r", bigRadius)
+        .raise()
+        // .attr("fill", "orange");
+
+      newOpacity = hoveredCircle.attr("opacity");
+      //find coordinates for the 3 circles
+      if(j == 0) {
+        topCircleCoordinates = [hoveredCircle.attr("cx"),hoveredCircle.attr("cy")];
+      } 
+      if(j == 1) {
+        middleCircleCoordinates = [hoveredCircle.attr("cx"),hoveredCircle.attr("cy")];
+      }
+      if(j == 2) {
+        bottomCircleCoordinates = [hoveredCircle.attr("cx"),hoveredCircle.attr("cy")];   
+      }
+    }
+    for(let j = 0; j < 3; j++) {
+      beeswarmContainerID = "beeswarm" + (j + 1) + "Container";
+      let svg = d3.select("#" + beeswarmContainerID + " svg");
+      if( j == 0 ) {
+        svg.select(".line1")
+          .attr("x1", topCircleCoordinates[0])
+          .attr("y1", parseInt(topCircleCoordinates[1]))
+          .attr("x2", middleCircleCoordinates[0])
+          .attr("y2", border + parseInt(middleCircleCoordinates[1]) + height)
+          .attr("opacity", newOpacity);
+      }
+      if( j == 1 ) {
+        svg.select(".line2")
+          .attr("x1", middleCircleCoordinates[0])
+          .attr("y1", middleCircleCoordinates[1])
+          .attr("x2", topCircleCoordinates[0])
+          .attr("y2", border - (height-parseInt(topCircleCoordinates[1])))
+          .attr("opacity", newOpacity);
+        svg.select(".line3")
+          .attr("x1", middleCircleCoordinates[0])
+          .attr("y1", middleCircleCoordinates[1])
+          .attr("x2", bottomCircleCoordinates[0])
+          .attr("y2", border + parseInt(bottomCircleCoordinates[1]) + height)
+          .attr("opacity", newOpacity);
+      }
+      if( j == 2 ) {
+        svg.select(".line4")
+          .attr("x1", bottomCircleCoordinates[0])
+          .attr("y1", bottomCircleCoordinates[1])
+          .attr("x2", middleCircleCoordinates[0])
+          .attr("y2", border - (height-parseInt(middleCircleCoordinates[1])))
+          .attr("opacity", newOpacity);
+      }
+    }
+  })
+
   // Tooltip
   let tt = document.createElement("div");
   tt.style.opacity = "0";
@@ -291,7 +394,7 @@ function BeeswarmChart(data, {
 
     xline.attr("x1", d3.select(this).attr("cx"))
       .attr("y1", d3.select(this).attr("cy"))
-      .attr("y2", (height - 30))
+      .attr("y2", (height - marginBottom))
       .attr("x2",  d3.select(this).attr("cx"))
       .attr("opacity", 1);
   })
@@ -299,6 +402,17 @@ function BeeswarmChart(data, {
   dots.on("mouseout", function() {
     tt.style.opacity = "0";
     xline.attr("opacity", 0);
+    for(let j = 0; j < 3; j++) {
+      beeswarmContainerID = "beeswarm" + (j + 1) + "Container";
+      let svg = d3.select("#" + beeswarmContainerID + " svg");
+      svg.selectAll("circle").attr("r", radius);
+      svg.selectAll("circle").attr("stroke", index => O[index]);
+      svg.selectAll("circle").attr("fill", index => C[index])
+      for(let k = 0; k < 4; k++){
+        svg.select(".line"+(k+1))
+          .attr("opacity", 0);
+      }
+    }
   })
 
   //On click
@@ -379,4 +493,151 @@ function equalArrays(array1, array2) {
   }
 
   return true;
+}
+
+function sortVariations(variations, sortingParameter) {
+  switch (sortingParameter) {
+    case "Name": 
+      return variations.sort(function(a, b) { return  a.name.localeCompare(b.name)});
+    case "Count": 
+      return variations.sort(function(a, b) { return b.games - a.games});
+    case "White": 
+      return variations.sort(function(a, b) { return b.white - a.white});
+    case "Black": 
+      return variations.sort(function(a, b) { return b.black - a.black});
+    case "Draw": 
+      return variations.sort(function(a, b) { return b.draw - a.draw});
+  }
+}
+
+function showLegend(show, data) {
+
+  // Elements
+  let legend = document.getElementById("legendContainer");
+  let hrs = document.getElementsByClassName("legendHR");
+
+  if(show) {
+    legend.style.display = "flex";
+    for(let i = 0; i < hrs.length; i++) {
+      hrs[i].style.display = "block";
+    }
+
+    document.getElementById("legendV").onclick = function() {variationsStackedBarChart(data, sortBy = "Name")};
+    document.getElementById("legendG").onclick = function() {variationsStackedBarChart(data, sortBy = "Count")};
+    document.getElementById("legendW").onclick = function() {variationsStackedBarChart(data, sortBy = "White")};
+    document.getElementById("legendD").onclick = function() {variationsStackedBarChart(data, sortBy = "Draw")};
+    document.getElementById("legendB").onclick = function() {variationsStackedBarChart(data, sortBy = "Black")};
+  } else {
+    legend.style.display = "none";
+    for(let i = 0; i < hrs.length; i++) {
+      hrs[i].style.display = "none";
+    }
+  }
+}
+
+
+function paracoordChart(data) {
+
+  //Variables
+  var chartContainerID =  "parallelCoordinatesChart";
+  let margin = {top: 10, right: 1, bottom: 30, left: 1};
+  let opening = data.find(x => x.name == document.getElementById("openingName").innerHTML);
+  let variations = data.filter(opening => !opening.hasOwnProperty("variations"));
+  let totalNoOfGames = variations.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
+
+  var width = document.getElementById(chartContainerID).getBoundingClientRect().width;
+  var height = document.getElementById(chartContainerID).getBoundingClientRect().height;
+
+  let parallelCoordinatesContainer = document.getElementById(chartContainerID);
+  while (parallelCoordinatesContainer.firstChild) {
+      parallelCoordinatesContainer.removeChild(parallelCoordinatesContainer.lastChild);
+  }
+
+  //Check if opening has games
+  if(!opening || variations.length == 1) {return}
+
+  //Map to data we want
+  const N = d3.map(variations, v => v.name.slice(opening.name.length + 2));
+  const P = d3.map(variations, v => (v.blackWins+v.whiteWins+v.draws)*100/totalNoOfGames);
+  const W = d3.map(variations, v => Math.abs(100*((v.whiteWins - v.blackWins)/(v.blackWins+v.whiteWins+v.draws))));
+  const C = d3.map(variations, v => (v.whiteWins - v.blackWins)/(v.blackWins+v.whiteWins+v.draws) > 0 ? "White" : "Black");
+  const G = d3.map(variations, v => v.avgGameLength);
+
+  //Create object to make it easy to stack
+  let variationArray = []
+  for(let i = 0; i < variations.length; i++) {
+    variationArray.push({name: N[i], popularity: P[i], winrate: W[i], gamelength: G[i], color: C[i]});
+  }
+
+  let dimensions = ["winrate", "popularity", "gamelength"];
+
+  //Chart
+  var svgParCoord= d3.select("#" + chartContainerID)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+  var y = {}
+  y["winrate"] = d3.scaleLinear()
+    .domain([0, variationArray.reduce(function(prev, curr) {return Math.max(prev, curr.winrate)},0)])
+    .range([height - margin.bottom, margin.top])
+
+  y["popularity"] = d3.scaleLinear()
+    .domain([0, variationArray.reduce(function(prev, curr) {return Math.max(prev, curr.popularity)},0)])
+    .range([height - margin.bottom, margin.top])
+
+  y["gamelength"] = d3.scaleLinear()
+    .domain(d3.extent(variationArray, d => d.gamelength))
+    .range([height - margin.bottom, margin.top])
+
+  // Build the X scales
+  x = d3.scalePoint()
+    .range([0+margin.left, width-margin.right])
+    .domain(dimensions);
+
+  // Find Paths
+  function path(d) {
+      return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+  }
+
+  let dynamicOpacity = variations.length > 30 ? 0.5 : 1;
+
+  // Draw the lines
+  svgParCoord
+    .selectAll("myPath")
+    .data(variationArray)
+    .enter().append("path")
+    .attr("d",  path)
+    .style("fill", "none")
+    .style("stroke-width", 1)
+    .style("stroke", d => d.color)
+    .style("opacity", dynamicOpacity)
+
+  let textAnchor = {winrate: "start", popularity: "middle", gamelength: "end"}
+  let axisDirection = {winrate: "right", popularity: "left", gamelength: "left"}
+
+  // Draw the axis:
+  svgParCoord.selectAll("myAxis")
+    // For each dimension of the dataset I add a 'g' element:
+    .data(dimensions).enter()
+    .append("g")
+    // I translate this element to its right position on the x axis
+    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+    // And I build the axis with the call function
+    .each(function(d) {
+      if(axisDirection[d] == "left") {
+        d3.select(this).call(d3.axisLeft().scale(y[d]).ticks(5).tickSizeOuter(0)); 
+      } else {
+        d3.select(this).call(d3.axisRight().scale(y[d]).ticks(5).tickSizeOuter(0));
+      }
+    })
+    // Add axis title
+    .append("text")
+      .style("text-anchor", d => textAnchor[d])
+      .style("font-size", "14px")
+      .attr("y", height - margin.bottom + 15)
+      .text(function(d) { return d; })
+      .style("fill", "black")
+
+  return svgParCoord.node();
 }

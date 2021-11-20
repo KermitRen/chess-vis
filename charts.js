@@ -80,16 +80,13 @@ function reload() {
 
 //TODO
 /*
-- Create parallel coordinates chart
-- Clean up barchart
-    - ledger til bar chart, plus sorteringsfunktion
-    - sorter barchart efter farven på den circle man klikker på
 - transitions? (Hackathon)
-- deselect by cliking nothing
-- add icon to link (screen share icon)
-- Fix: too long leaderline
-- Fix: Slider escaping from mouse
-- Fix: double click highlighting in filters & title
+- UI Design (Colors)
+- deselect by cliking nothing 
+- Relative sizing checkboxes 
+- Show no of games per opening 
+- Checkbox for hover tool 
+- Clean up parallel coordinated (maybe interation)
 */
 
 function drawCharts(cleanData) {
@@ -97,9 +94,6 @@ function drawCharts(cleanData) {
     //Remove all charts
     for (let i=0; i<3;i++) {
         chartContainer = document.getElementById("beeswarm"+(i+1)+"Container");
-        /*while (chartContainer.firstChild != null) {
-            chartContainer.removeChild(chartContainer.lastChild);
-        }*/
         for (let j = chartContainer.children.length - 1; j >= 0; j--) {
             if(chartContainer.children[j].id != "logCheckboxContainer") {
                 chartContainer.removeChild(chartContainer.children[j]);
@@ -150,23 +144,11 @@ function drawCharts(cleanData) {
     })
 
     //Stacked Bar Chart
-    let stackedBarchartContainer = document.getElementById("stackedBarChart");
-    while (stackedBarchartContainer.firstChild != null) {
-        stackedBarchartContainer.removeChild(stackedBarchartContainer.lastChild);
-    }
+    variationsStackedBarChart(cleanData);
 
-    if(document.getElementById("openingName").innerHTML != "") {
-        let opening = cleanData.find(x => x.name == document.getElementById("openingName").innerHTML);
-        if(opening) {
-            variationsStackedBarChart(opening, {
-                variations: d => d.name,
-                whiteperc: d => 100*d.whiteWins/(d.whiteWins + d.blackWins + d.draws),
-                blackperc: d => 100*d.blackWins/(d.whiteWins + d.blackWins + d.draws),
-                drawperc: d => 100*d.draws/(d.whiteWins + d.blackWins + d.draws),
-                chartContainerID: "stackedBarChart"
-            });
-        }
-    }
+    //Parallel Coordinates Chart
+    paracoordChart(cleanData);
+
 }
 
 function showcaseOpening(opening) {
@@ -179,10 +161,13 @@ function showcaseOpening(opening) {
     //Set Name
     let selectedOpening = document.getElementById("openingName").innerHTML;
     if(selectedOpening == opening.name) {
+        document.getElementById("openingNameContainer").style.display = "none";
         document.getElementById("openingName").innerHTML = "";
     } else {
+        document.getElementById("openingNameContainer").style.display = "inline-flex";
         document.getElementById("openingName").innerHTML = opening.name;
         document.getElementById("openingName").href = openings[opening.name];
+        document.getElementById("linkIcon").href = openings[opening.name];
     }
 
     //Add Variations
@@ -289,10 +274,7 @@ function countGames(openings) {
 }
 
 function coloringPoints(opening) {
-    let gamesPlayed = opening.whiteWins + opening.blackWins + opening.draws;
-    let whiteWinrate = opening.whiteWins/gamesPlayed;
-    let blackWinrate = opening.blackWins/gamesPlayed;
-    return whiteWinrate>blackWinrate ? "White" : "Black";
+    return opening.whiteWins>opening.blackWins ? "White" : "Black";
 }
 
 function outliningPoints(opening) {
