@@ -36,7 +36,6 @@
             <div id="sliderContainer">
                 <div id="eloSlider"></div>
                 <div id="ticks"></div>
-                <p id="currRange"></p>
             </div>
             <p class = "filterLabel">Time Controls</p>
             <div id="timeControl">
@@ -57,26 +56,33 @@
                     <p>Classical</p>
                 </div>
             </div>
+            <div id="connectToolContainer">
+                <p>Connect Dots</p>
+                <input id="connectToolCheckbox" type="checkbox" onclick="reload()">
+            </div>
         </div>
         <div id = "openingContainer">
             <div id="openingNameContainer">
                 <a id="openingName" target="_blank"></a>
                 <a id="linkIcon" class="material-icons" target="_blank">screen_share</a>
             </div>
-            <hr class="legendHR">
-            <div id="legendContainer">
-                <p id="legendV">Variation</p>
-                <p id="legendG">Games</p>
-                <p id="legendW">White</p>
-                <p id="legendD">Draw</p>
-                <p id="legendB">Black</p>
+            <div id="legend">
+                <hr class="legendHR">
+                <div id="legendContainer">
+                    <p id="legendV">Variation</p>
+                    <p id="legendG">Games</p>
+                    <p id="legendW">White</p>
+                    <p id="legendD">Draw</p>
+                    <p id="legendB">Black</p>
+                </div>
+                <hr class="legendHR">
             </div>
-            <hr class="legendHR">
             <div id = "stackedBarChart">
                 <div id="variationLabelContainer"></div>
                 <div id="svgContainer"></div>
             </div>
             <div id = "parallelCoordinatesChart"></div>
+            <p id="openingGameCounter"></p>
         </div>
     </div>
 </body>

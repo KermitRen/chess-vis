@@ -29,18 +29,15 @@
     var touchEndListeners = [];
     var container = d3.select(containerSelector);
 
-    var containerHeight = container.node().offsetHeight;
-
     var sliderBox = container.append("div")
         .style("position", "relative")
-        .style("height", (containerHeight - 1) + "px")
         .style("min-width", (minWidth*2) + "px")
         .classed("slider-container", true);
 
     //Create elements in container
     var slider = sliderBox
         .append("div")
-        .attr("class", "slider");
+        .attr("class", "slider")
     var handleW = slider.append("div").attr("class", "handle WW");
     var handleE = slider.append("div").attr("class", "handle EE");
 

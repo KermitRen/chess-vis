@@ -37,6 +37,10 @@ body {
             right: 5px;
             font-size: 0.9vmax;
             bottom: 0px;
+
+            strong {
+                font-size: 1em;
+            }
         }
     }
 
@@ -100,6 +104,39 @@ body {
         -ms-user-select: none; 
         -o-user-select: none;
         user-select: none;
+
+        #connectToolContainer {
+            position: absolute;
+            top: 7%;
+            right: 7%;
+            width: 12%;
+
+            p {
+                font-size: 0.7vmax;
+                font-weight: 500;
+                text-transform: uppercase;
+                text-align: center;
+                line-height: 100%;
+                margin-bottom: 12%;
+            }
+
+            input[type=checkbox] {
+                position: relative;
+                height: 18px;
+                width: 18px;
+                transform: translateX(-50%);
+                left: 50%;
+                appearance: none;
+                border: 2px solid white;
+                background-color: white;
+                cursor: pointer;
+            
+                &:checked{
+                    background-color: $chessBrown2;
+                }
+            }
+
+        }
 
         .filterLabel {
             font-size: 1vmax;
@@ -176,6 +213,8 @@ body {
                 justify-content: space-between;
                 align-items: center;
                 position: relative;
+                width: 10%;
+                overflow: visible;
 
                 p {
                     font-size: 1vmax;
@@ -201,12 +240,13 @@ body {
     }
 
     #openingContainer {
+        position: relative;
         height: 68%;
         background-color: $chessBrown2;
         border-left: 3px solid black;
         border-top: 1px solid black;
         text-align: center;
-        padding-top: 3%;
+        padding: 2% 0;
 
         #openingNameContainer {
             display: none;
@@ -214,7 +254,11 @@ body {
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            height: 8%;
+            width: 90%;
             margin-bottom: 2%;
+            margin-left: auto;
+            margin-right: auto;
 
             &:hover #openingName{
                 color: rgba(50,50,50,1);
@@ -238,51 +282,68 @@ body {
 
         }
 
-        hr {
-            width: 90%;
-            background-color: black;
-            border: none;
-            height: 1px;
-            margin: auto;
+        #openingGameCounter {
+            position: absolute;
+            font-size: 0.7vmax;
+            text-align: right;
+            right: 5px;
+            bottom: 3px;
+
+            strong {
+                font-size: 1em;
+                font-weight: 600;
+            }
         }
-        
-        #legendContainer {
+
+        #legend {
             width: 90%;
             margin: auto;
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            margin-top: 1%;
-            margin-bottom: 1%;
+            
+            hr {
+                width: 100%;
+                background-color: black;
+                border: none;
+                height: 1px;
+            }
 
-            p {
-                font-size: 0.9vmax;
-                font-weight: 500;
-                cursor: pointer;
-                background-color: $chessBrown2;
-
-                &:hover {
-                    filter: brightness(90%);
+            #legendContainer {
+                width: 100%;
+                display: flex;
+                flex-flow: row nowrap;
+                align-items: center;
+                margin-top: 1%;
+                margin-bottom: 1%;
+    
+                p {
+                    font-size: 0.9vmax;
+                    font-weight: 500;
+                    cursor: pointer;
+                    background-color: $chessBrown2;
+    
+                    &:hover {
+                        filter: brightness(90%);
+                    }
+                }
+    
+                #legendV {
+                    width: 42%;
+                    text-align: left;
+                    padding-left: 5px;
+                }
+    
+                #legendG {
+                    width: 18%;
+                    text-align: right;
+                    padding-right: 5px;
+                    border-right: 1px solid rgba(0,0,0,0.5);
+                }
+    
+                #legendW, #legendD, #legendB {
+                    width: 13.33%;
+                    text-align: center;
                 }
             }
 
-            #legendV {
-                width: 42%;
-                text-align: left;
-                padding-left: 5px;
-            }
-
-            #legendG {
-                width: 18%;
-                text-align: right;
-                padding-right: 5px;
-                border-right: 1px solid rgba(0,0,0,0.5);
-            }
-
-            #legendW, #legendD, #legendB {
-                width: 13.33%;
-                text-align: center;
-            }
         }
 
         #stackedBarChart {
@@ -293,6 +354,7 @@ body {
             height: 40%;
             overflow-y: auto;
             overflow-x: hidden;
+            margin-bottom: 5%;
 
             #variationLabelContainer {
                 width: 60%;
@@ -355,7 +417,7 @@ body {
 
         #parallelCoordinatesChart {
             width: 90%;
-            height: 45%;
+            height: 40%;
             margin: auto;
         }
     }
@@ -379,6 +441,10 @@ div.tooltip {
     strong {
         color: black;
     }
+}
+
+.slider-container {
+    height: 100%;
 }
 
 .slider {

@@ -4,7 +4,7 @@ function variationsStackedBarChart(data, sortBy = "") {
   var chartContainerID =  "svgContainer"
   let opening = data.find(x => x.name == document.getElementById("openingName").innerHTML);
   let variations = data.filter(opening => !opening.hasOwnProperty("variations"));
-  //let totalNoOfGames = variations.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
+  let totalNoOfGames = variations.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
 
   var width = document.getElementById(chartContainerID).getBoundingClientRect().width;
   var barHeight = document.getElementById(chartContainerID).getBoundingClientRect().height/12;
@@ -27,7 +27,9 @@ function variationsStackedBarChart(data, sortBy = "") {
   //Check if opening has games
   if(opening) {
     showLegend(true, data);
+    document.getElementById("openingGameCounter").innerHTML = "Visualizing <strong>" + numberWithCommas(totalNoOfGames) + "</strong> Games";
   } else {
+    document.getElementById("openingGameCounter").innerHTML = "";
     return;
   }
 
@@ -223,9 +225,10 @@ function BeeswarmChart(data, {
 
   //Brushing
   const brush = d3.brush()
-      .on("start brush end", brushed);
+      .on("start brush", brushed);
 
   brush.on("start", function() {removeOldSelections(containerID)});
+  brush.on("end", deselect);
 
   svg.append("g")
   .attr("class", "brush")
@@ -252,7 +255,7 @@ function BeeswarmChart(data, {
       })
       .attr("pointer-events", "all")
       .style("cursor", "pointer");
-  
+
   var lastSelection = [];  
   function brushed({selection}) {
 
@@ -291,6 +294,22 @@ function BeeswarmChart(data, {
       lastSelection = selectedIndexes;
     }
 
+  }
+
+  var hadSelection = false
+  function deselect({selection}) {
+    brushed({selection});
+
+    if(selection == null) {
+      let currOpeningName = document.getElementById("openingName").innerHTML;
+      if(currOpeningName != "" && !hadSelection) {
+        let currOpening = data.find(x => x.name == currOpeningName);
+        showcaseOpening(currOpening);
+      }
+      hadSelection = false;
+    } else {
+      hadSelection = true;
+    }
   }
 
   //Highlight lines (1 for top beeplot, 2 for middle, 1 for bottom)
@@ -342,38 +361,40 @@ function BeeswarmChart(data, {
         bottomCircleCoordinates = [hoveredCircle.attr("cx"),hoveredCircle.attr("cy")];   
       }
     }
-    for(let j = 0; j < 3; j++) {
-      beeswarmContainerID = "beeswarm" + (j + 1) + "Container";
-      let svg = d3.select("#" + beeswarmContainerID + " svg");
-      if( j == 0 ) {
-        svg.select(".line1")
-          .attr("x1", topCircleCoordinates[0])
-          .attr("y1", parseInt(topCircleCoordinates[1]))
-          .attr("x2", middleCircleCoordinates[0])
-          .attr("y2", border + parseInt(middleCircleCoordinates[1]) + height)
-          .attr("opacity", newOpacity);
-      }
-      if( j == 1 ) {
-        svg.select(".line2")
-          .attr("x1", middleCircleCoordinates[0])
-          .attr("y1", middleCircleCoordinates[1])
-          .attr("x2", topCircleCoordinates[0])
-          .attr("y2", border - (height-parseInt(topCircleCoordinates[1])))
-          .attr("opacity", newOpacity);
-        svg.select(".line3")
-          .attr("x1", middleCircleCoordinates[0])
-          .attr("y1", middleCircleCoordinates[1])
-          .attr("x2", bottomCircleCoordinates[0])
-          .attr("y2", border + parseInt(bottomCircleCoordinates[1]) + height)
-          .attr("opacity", newOpacity);
-      }
-      if( j == 2 ) {
-        svg.select(".line4")
-          .attr("x1", bottomCircleCoordinates[0])
-          .attr("y1", bottomCircleCoordinates[1])
-          .attr("x2", middleCircleCoordinates[0])
-          .attr("y2", border - (height-parseInt(middleCircleCoordinates[1])))
-          .attr("opacity", newOpacity);
+    if(document.getElementById("connectToolCheckbox").checked) {
+      for(let j = 0; j < 3; j++) {
+        beeswarmContainerID = "beeswarm" + (j + 1) + "Container";
+        let svg = d3.select("#" + beeswarmContainerID + " svg");
+        if( j == 0 ) {
+          svg.select(".line1")
+            .attr("x1", topCircleCoordinates[0])
+            .attr("y1", parseInt(topCircleCoordinates[1]))
+            .attr("x2", middleCircleCoordinates[0])
+            .attr("y2", border + parseInt(middleCircleCoordinates[1]) + height)
+            .attr("opacity", newOpacity);
+        }
+        if( j == 1 ) {
+          svg.select(".line2")
+            .attr("x1", middleCircleCoordinates[0])
+            .attr("y1", middleCircleCoordinates[1])
+            .attr("x2", topCircleCoordinates[0])
+            .attr("y2", border - (height-parseInt(topCircleCoordinates[1])))
+            .attr("opacity", newOpacity);
+          svg.select(".line3")
+            .attr("x1", middleCircleCoordinates[0])
+            .attr("y1", middleCircleCoordinates[1])
+            .attr("x2", bottomCircleCoordinates[0])
+            .attr("y2", border + parseInt(bottomCircleCoordinates[1]) + height)
+            .attr("opacity", newOpacity);
+        }
+        if( j == 2 ) {
+          svg.select(".line4")
+            .attr("x1", bottomCircleCoordinates[0])
+            .attr("y1", bottomCircleCoordinates[1])
+            .attr("x2", middleCircleCoordinates[0])
+            .attr("y2", border - (height-parseInt(middleCircleCoordinates[1])))
+            .attr("opacity", newOpacity);
+        }
       }
     }
   })
@@ -540,13 +561,14 @@ function paracoordChart(data) {
 
   //Variables
   var chartContainerID =  "parallelCoordinatesChart";
-  let margin = {top: 10, right: 1, bottom: 30, left: 1};
+  let margin = {top: 10, right: 2, bottom: 30, left: 2};
   let opening = data.find(x => x.name == document.getElementById("openingName").innerHTML);
   let variations = data.filter(opening => !opening.hasOwnProperty("variations"));
   let totalNoOfGames = variations.reduce((prev, curr) => prev + curr.whiteWins + curr.blackWins + curr.draws, 0);
 
   var width = document.getElementById(chartContainerID).getBoundingClientRect().width;
   var height = document.getElementById(chartContainerID).getBoundingClientRect().height;
+  let textsize = height/18;
 
   let parallelCoordinatesContainer = document.getElementById(chartContainerID);
   while (parallelCoordinatesContainer.firstChild) {
@@ -570,6 +592,7 @@ function paracoordChart(data) {
   }
 
   let dimensions = ["winrate", "popularity", "gamelength"];
+  let axisNames = {winrate: "Winrate", popularity: "Popularity", gamelength: "No of moves"}
 
   //Chart
   var svgParCoord= d3.select("#" + chartContainerID)
@@ -580,15 +603,15 @@ function paracoordChart(data) {
   var y = {}
   y["winrate"] = d3.scaleLinear()
     .domain([0, variationArray.reduce(function(prev, curr) {return Math.max(prev, curr.winrate)},0)])
-    .range([height - margin.bottom, margin.top])
+    .range([height - margin.bottom, margin.top + 10])
 
   y["popularity"] = d3.scaleLinear()
     .domain([0, variationArray.reduce(function(prev, curr) {return Math.max(prev, curr.popularity)},0)])
-    .range([height - margin.bottom, margin.top])
+    .range([height - margin.bottom, margin.top + 10])
 
   y["gamelength"] = d3.scaleLinear()
     .domain(d3.extent(variationArray, d => d.gamelength))
-    .range([height - margin.bottom, margin.top])
+    .range([height - margin.bottom, margin.top + 10])
 
   // Build the X scales
   x = d3.scalePoint()
@@ -631,13 +654,20 @@ function paracoordChart(data) {
         d3.select(this).call(d3.axisRight().scale(y[d]).ticks(5).tickSizeOuter(0));
       }
     })
+
     // Add axis title
     .append("text")
       .style("text-anchor", d => textAnchor[d])
-      .style("font-size", "14px")
-      .attr("y", height - margin.bottom + 15)
-      .text(function(d) { return d; })
+      .style("font-size", textsize + "px")
+      .style("font-weight", "500")
+      .attr("y", margin.top)
+      .text(function(d) { return axisNames[d]; })
       .style("fill", "black")
 
-  return svgParCoord.node();
+  svgParCoord.selectAll(".tick").selectAll("text")
+  .style("font-size", textsize + "px")
+  .style("font-weight", "400");
+
+  svgParCoord.selectAll("g").selectAll("path")
+  .attr("stroke-width", 1.2)
 }

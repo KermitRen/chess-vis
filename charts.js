@@ -82,13 +82,11 @@ function reload() {
 /*
 - transitions? (Hackathon)
 - UI Design (Colors)
-- deselect by cliking nothing 
-- Relative sizing checkboxes 
-- Show no of games per opening 
-- Checkbox for hover tool 
+- Relative sizing checkboxes
+- Remove lines from circle (hover-tool)(math)
+- better relative opacity for pc chart 
 - Clean up parallel coordinated (maybe interation)
-- Fix: Height of slider for small screen
-- clean up opening container
+- show scrolling for barchart (blakc line under?)
 */
 
 function drawCharts(cleanData) {
