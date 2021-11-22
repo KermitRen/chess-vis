@@ -71,7 +71,7 @@ function variationsStackedBarChart(data, sortBy = "") {
     variationInfoContainer.appendChild(variationName);
 
     let variationGames = document.createElement("p");
-    variationGames.innerHTML = variationBars[i].games;
+    variationGames.innerHTML = numberWithCommas(variationBars[i].games);
     variationGames.className = "gamesInfo";
     variationGames.style.fontSize = (barHeight*0.8) + "px";
     variationInfoContainer.appendChild(variationGames);
