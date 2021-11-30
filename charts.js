@@ -82,9 +82,6 @@ function reload() {
 /*
 - UI Design (Colors)
 - Remove lines from circle (hover-tool)(math)
-- consistent checkboxes
-- Clean up parallel coordinated (maybe interation)
-    - brushing?
 - show scrolling for barchart (blakc line under?)
 - variation color
 */

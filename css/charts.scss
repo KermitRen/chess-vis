@@ -127,6 +127,7 @@ body {
                 transform: translateX(-50%);
                 left: 50%;
                 appearance: none;
+                border-radius: 30%;
                 border: 2px solid white;
                 background-color: white;
                 cursor: pointer;
@@ -228,7 +229,7 @@ body {
                     appearance: none;
                     border: 2px solid white;
                     background-color: white;
-                    border-radius: 50%;
+                    border-radius: 30%;
                     cursor: pointer;
                 
                     &:checked {
@@ -298,6 +299,7 @@ body {
         #legend {
             width: 90%;
             margin: auto;
+            display: none;
             
             hr {
                 width: 100%;

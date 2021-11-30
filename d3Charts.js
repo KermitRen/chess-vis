@@ -633,7 +633,7 @@ function paracoordChart(data) {
     .enter().append("path")
     .attr("d",  path)
     .style("fill", "none")
-    .style("stroke-width", 2)
+    .style("stroke-width", 1.6)
     .style("stroke", d => d.color)
     .style("opacity", dynamicOpacity)
 
@@ -650,11 +650,16 @@ function paracoordChart(data) {
     tt.style.top = (event.pageY - 24 - document.getElementById("filters").getBoundingClientRect().bottom) + "px";
     tt.style.left = (event.pageX + 37 - chartContainer.getBoundingClientRect().left) + "px";
     tt.style.opacity = "0.95";
+    d3.select(this).style("stroke-width", 3);
+    d3.select(this).style("opacity", 1);
+    d3.select(this).raise();
     tt.innerHTML = i.name;
   });
 
   paths.on("mouseout", function() {
     tt.style.opacity = "0";
+    d3.select(this).style("stroke-width", 1.6);
+    d3.select(this).style("opacity", dynamicOpacity);
   });
 
   let textAnchor = {winrate: "start", popularity: "middle", gamelength: "end"}
@@ -673,6 +678,7 @@ function paracoordChart(data) {
       .style("text-anchor", d => textAnchor[d])
       .style("font-size", textsize + "px")
       .style("font-weight", "500")
+      .style("cursor", "move")
       .attr("y", margin.top)
       .text(function(d) { return axisNames[d]; })
       .style("fill", "black");

@@ -169,6 +169,7 @@ body {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
+  border-radius: 30%;
   border: 2px solid white;
   background-color: white;
   cursor: pointer;
@@ -305,7 +306,7 @@ body {
           appearance: none;
   border: 2px solid white;
   background-color: white;
-  border-radius: 50%;
+  border-radius: 30%;
   cursor: pointer;
 }
 
@@ -379,6 +380,7 @@ body {
 #rightSide #openingContainer #legend {
   width: 90%;
   margin: auto;
+  display: none;
 }
 
 #rightSide #openingContainer #legend hr {
