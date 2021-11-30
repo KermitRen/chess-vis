@@ -245,6 +245,7 @@ function BeeswarmChart(data, {
       .attr("r", radius)
       .attr("fill", i => C[i])
       .attr("stroke", i => O[i])
+      .style("stroke-width", 1.25)
       .attr("opacity", i => {
         let selectedOpening = document.getElementById("openingName").innerHTML;
         if(selectedOpening == "") {

@@ -83,7 +83,6 @@ function reload() {
 - UI Design (Colors)
 - Remove lines from circle (hover-tool)(math)
 - show scrolling for barchart (blakc line under?)
-- variation color
 */
 
 function drawCharts(cleanData) {
@@ -282,7 +281,7 @@ function outliningPoints(opening) {
 
     //Find correct outline
     if(!opening.hasOwnProperty('variations')) {
-        return "Blue"
+        return "Blue";
     } else {
         return opening.name == selectedOpening? "Red" : "None";
     }
