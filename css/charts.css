@@ -535,7 +535,7 @@ div.tooltip {
   border-radius: 2px;
   pointer-events: none;
   cursor: none;
-  z-index: 1;
+  z-index: 5;
 }
 
 div.tooltip strong {

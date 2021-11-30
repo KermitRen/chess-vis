@@ -80,13 +80,13 @@ function reload() {
 
 //TODO
 /*
-- transitions? (Hackathon)
 - UI Design (Colors)
-- Relative sizing checkboxes
 - Remove lines from circle (hover-tool)(math)
-- better relative opacity for pc chart 
+- consistent checkboxes
 - Clean up parallel coordinated (maybe interation)
+    - brushing?
 - show scrolling for barchart (blakc line under?)
+- variation color
 */
 
 function drawCharts(cleanData) {

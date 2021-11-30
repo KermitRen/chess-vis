@@ -561,6 +561,7 @@ function paracoordChart(data) {
 
   //Variables
   var chartContainerID =  "parallelCoordinatesChart";
+  var chartContainer = document.getElementById(chartContainerID);
   let margin = {top: 10, right: 2, bottom: 30, left: 2};
   let opening = data.find(x => x.name == document.getElementById("openingName").innerHTML);
   let variations = data.filter(opening => !opening.hasOwnProperty("variations"));
@@ -615,7 +616,7 @@ function paracoordChart(data) {
 
   // Build the X scales
   x = d3.scalePoint()
-    .range([0+margin.left, width-margin.right])
+    .range([0+margin.left + 1, width-margin.right - 1])
     .domain(dimensions);
 
   // Find Paths
@@ -623,7 +624,7 @@ function paracoordChart(data) {
       return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
   }
 
-  let dynamicOpacity = variations.length > 30 ? 0.5 : 1;
+  let dynamicOpacity = variations.length < 10 ? 1 : (Math.pow(variations.length,-0.62)*4.33);
 
   // Draw the lines
   svgParCoord
@@ -632,42 +633,117 @@ function paracoordChart(data) {
     .enter().append("path")
     .attr("d",  path)
     .style("fill", "none")
-    .style("stroke-width", 1)
+    .style("stroke-width", 2)
     .style("stroke", d => d.color)
     .style("opacity", dynamicOpacity)
 
+  // Tooltip
+  let tt = document.createElement("div");
+  tt.style.opacity = "0";
+  tt.className = "tooltip";
+  chartContainer.appendChild(tt);
+
+    // On hover
+  var paths = svgParCoord.selectAll("path");
+
+  paths.on("mousemove", function(event, i) {
+    tt.style.top = (event.pageY - 24 - document.getElementById("filters").getBoundingClientRect().bottom) + "px";
+    tt.style.left = (event.pageX + 37 - chartContainer.getBoundingClientRect().left) + "px";
+    tt.style.opacity = "0.95";
+    tt.innerHTML = i.name;
+  });
+
+  paths.on("mouseout", function() {
+    tt.style.opacity = "0";
+  });
+
   let textAnchor = {winrate: "start", popularity: "middle", gamelength: "end"}
-  let axisDirection = {winrate: "right", popularity: "left", gamelength: "left"}
+  var dragging = {};
+  var line = d3.line();
 
   // Draw the axis:
-  svgParCoord.selectAll("myAxis")
+  var g = svgParCoord.selectAll("myAxis")
     // For each dimension of the dataset I add a 'g' element:
     .data(dimensions).enter()
     .append("g")
-    // I translate this element to its right position on the x axis
-    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-    // And I build the axis with the call function
-    .each(function(d) {
-      if(axisDirection[d] == "left") {
-        d3.select(this).call(d3.axisLeft().scale(y[d]).ticks(5).tickSizeOuter(0)); 
-      } else {
-        d3.select(this).call(d3.axisRight().scale(y[d]).ticks(5).tickSizeOuter(0));
-      }
-    })
+    .attr("transform", function(d) { return "translate(" + x(d) + ")"; });
 
     // Add axis title
-    .append("text")
+    var labels = g.append("text")
       .style("text-anchor", d => textAnchor[d])
       .style("font-size", textsize + "px")
       .style("font-weight", "500")
       .attr("y", margin.top)
       .text(function(d) { return axisNames[d]; })
-      .style("fill", "black")
+      .style("fill", "black");
 
-  svgParCoord.selectAll(".tick").selectAll("text")
-  .style("font-size", textsize + "px")
-  .style("font-weight", "400");
+    redirectAxis();
+    
+    g.call(d3.drag()
+    .subject(function(d) { return {x: x(d)}; })
+    .on("start", function(_, d) {
+      dragging[d] = x(d);
+    })
+    .on("drag", function(event, d) {
+      dragging[d] = Math.min(width - margin.right, Math.max(margin.left, event.x));
+      paths.attr("d", path2);
+      let oldDimensions = (dimensions[0], dimensions[1]);
+      dimensions.sort(function(a, b) { return position(a) - position(b); });
+      x.domain(dimensions);
+      if((dimensions[0], dimensions[1]) != oldDimensions) { redirectAxis()};
+      g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+    })
+    .on("end", function(event, d) {
+      delete dragging[d];
+      transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+      transition(paths).attr("d", path2);
+    }))
 
-  svgParCoord.selectAll("g").selectAll("path")
-  .attr("stroke-width", 1.2)
+    function position(d) {
+      var v = dragging[d];
+      return v == null ? x(d) : v;
+    }
+
+    function path2(d) {
+      return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+    }
+    
+    function transition(g) {
+      return g.transition().duration(500);
+    }
+
+    function redirectAxis() {
+
+      //Tickmark direction
+      g.each(function(d) {
+        if(dimensions[0] == d) {
+          d3.select(this).call(d3.axisRight().scale(y[d]).ticks(5).tickSizeOuter(0));
+          d3.select(this).selectAll(".tick").selectAll("text")
+          .style("font-size", textsize + "px")
+          .style("font-weight", "400")
+          .style("text-anchor", "start")
+        } else {
+          d3.select(this).call(d3.axisLeft().scale(y[d]).ticks(5).tickSizeOuter(0)); 
+          d3.select(this).selectAll(".tick").selectAll("text")
+          .style("font-size", textsize + "px")
+          .style("font-weight", "400")
+          .style("text-anchor", "end")
+        }
+      })
+
+      //Label anchor
+      labels.each(function (d) {
+        if(dimensions[0] == d) {
+          d3.select(this).style("text-anchor", "start");
+        } else if(dimensions[1] == d){
+          d3.select(this).style("text-anchor", "middle");
+        } else {
+          d3.select(this).style("text-anchor", "end");
+        }
+      })
+    }
+
+    svgParCoord.selectAll("g").selectAll("path")
+    .attr("stroke-width", 1.2)
+
 }
