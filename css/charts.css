@@ -380,11 +380,11 @@ body {
 #rightSide #openingContainer #legend {
   width: 90%;
   margin: auto;
-  display: none;
 }
 
 #rightSide #openingContainer #legend hr {
   width: 100%;
+  display: none;
   background-color: black;
   border: none;
   height: 1px;
@@ -392,9 +392,7 @@ body {
 
 #rightSide #openingContainer #legend #legendContainer {
   width: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: none;
   -webkit-box-orient: horizontal;
   -webkit-box-direction: normal;
       -ms-flex-flow: row nowrap;
@@ -515,7 +513,15 @@ body {
 }
 
 #rightSide #openingContainer #stackedBarChart::-webkit-scrollbar {
-  display: none;
+  width: 10px;
+}
+
+#rightSide #openingContainer #stackedBarChart::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#rightSide #openingContainer #stackedBarChart::-webkit-scrollbar-thumb {
+  background-color: #735e4d;
 }
 
 #rightSide #openingContainer #parallelCoordinatesChart {

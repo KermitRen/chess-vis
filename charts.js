@@ -82,7 +82,6 @@ function reload() {
 /*
 - UI Design (Colors)
 - Remove lines from circle (hover-tool)(math)
-- show scrolling for barchart (blakc line under?)
 */
 
 function drawCharts(cleanData) {

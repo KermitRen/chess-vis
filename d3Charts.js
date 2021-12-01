@@ -135,6 +135,14 @@ function variationsStackedBarChart(data, sortBy = "") {
     .attr("y", (_, i) =>(i*(barHeight+barGap))+(barHeight*0.25))
     .attr("dy", ".75em")
     .text(d => {return (d[1]-d[0] > 15 ? Math.round(d[1]-d[0]) + "%" : "")});
+  
+  //Adjust for scrollbar
+  let scrollableDiv = document.getElementById("stackedBarChart");
+  if(scrollableDiv.scrollHeight > scrollableDiv.clientHeight) {
+    document.getElementById("legendContainer").style.paddingRight = "10px";
+  } else {
+    document.getElementById("legendContainer").style.paddingRight = "0px";
+  }
 
 }
 
@@ -509,6 +517,7 @@ function equalArrays(array1, array2) {
   let length2 = array2.length;
 
   if(length1 != length2) {return false};
+  if(length1 == 0) {return false};
 
   for(let i = 0; i < length1; i++) {
     if(array1[i] != array2[i]) {return false};
