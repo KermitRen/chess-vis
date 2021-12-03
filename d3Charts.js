@@ -553,11 +553,11 @@ function showLegend(show, data) {
       hrs[i].style.display = "block";
     }
 
-    document.getElementById("legendV").onclick = function() {variationsStackedBarChart(data, sortBy = "Name")};
-    document.getElementById("legendG").onclick = function() {variationsStackedBarChart(data, sortBy = "Count")};
-    document.getElementById("legendW").onclick = function() {variationsStackedBarChart(data, sortBy = "White")};
-    document.getElementById("legendD").onclick = function() {variationsStackedBarChart(data, sortBy = "Draw")};
-    document.getElementById("legendB").onclick = function() {variationsStackedBarChart(data, sortBy = "Black")};
+    document.getElementById("legendV").onclick = function() {variationsStackedBarChart(data, sortBy = "Name"); paracoordChart(data)};
+    document.getElementById("legendG").onclick = function() {variationsStackedBarChart(data, sortBy = "Count"); paracoordChart(data)};
+    document.getElementById("legendW").onclick = function() {variationsStackedBarChart(data, sortBy = "White"); paracoordChart(data)};
+    document.getElementById("legendD").onclick = function() {variationsStackedBarChart(data, sortBy = "Draw"); paracoordChart(data)};
+    document.getElementById("legendB").onclick = function() {variationsStackedBarChart(data, sortBy = "Black"); paracoordChart(data)};
   } else {
     legend.style.display = "none";
     for(let i = 0; i < hrs.length; i++) {
